@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-4">
+<meta name="durip-build" content="2026-11-05-5">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -504,7 +504,15 @@ body.nosel{-webkit-user-select:none;user-select:none;cursor:grabbing}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 nav.tabs a{height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--mute);text-decoration:none;font-size:11px}
 nav.tabs a[aria-current="page"]{color:var(--navy);font-weight:700}
-nav.tabs svg{width:24px;height:24px}
+nav.tabs svg{width:24px;height:24px;position:relative;z-index:1;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+/* tab bar feedback: pill behind the active icon, press shrink, little pop on select */
+nav.tabs a{position:relative;-webkit-tap-highlight-color:transparent;transition:color .2s}
+nav.tabs a::before{content:"";position:absolute;top:9px;left:50%;width:56px;height:30px;margin-left:-28px;border-radius:999px;background:var(--pill);transform:scaleX(.4);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1.1),opacity .2s}
+nav.tabs a[aria-current="page"]::before{transform:scaleX(1);opacity:1}
+nav.tabs a:active svg{transform:scale(.86)}
+nav.tabs a.pop svg{animation:tabpop .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tabpop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){nav.tabs a::before,nav.tabs svg{transition:none}nav.tabs a.pop svg{animation:none}}
 .snack{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:41;display:flex;align-items:center;gap:20px;min-height:52px;padding:0 8px 0 20px;border-radius:12px;background:#e9ebef;color:#1f2733;font-size:15px;box-shadow:0 6px 20px rgba(11,26,58,.22);width:max-content;max-width:calc(100% - 32px);animation:snin .22s ease-out}
 .snack button{min-height:44px;padding:0 12px;border:0;background:none;color:#2463b0;font-size:15px;font-weight:700;cursor:pointer;border-radius:8px;white-space:nowrap}
 .snack.out{opacity:0;transition:opacity .25s}
@@ -1655,7 +1663,15 @@ function render(){
   document.querySelectorAll('nav.tabs a').forEach(function(a){if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
 }
 var last=cur();
-window.addEventListener('hashchange',function(){if(sheetRoot.innerHTML)closeSheet();if(cur()!==last){last=cur();window.scrollTo(0,0)}render()});
+var TAB_ORDER=['home','itinerary','map','packing','calendar'];
+function tabAnim(from,to){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var dir=TAB_ORDER.indexOf(to)>TAB_ORDER.indexOf(from)?1:-1;
+  var a=document.querySelector('nav.tabs a[data-v="'+to+'"]');if(a){a.classList.remove('pop');void a.offsetWidth;a.classList.add('pop')}
+  if(view.animate)view.animate([{opacity:0,transform:'translateX('+(dir*24)+'px)'},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
+  if(hdr.animate)hdr.animate([{opacity:.4},{opacity:1}],{duration:260,easing:'ease-out'});
+}
+window.addEventListener('hashchange',function(){if(sheetRoot.innerHTML)closeSheet();var from=last,moved=cur()!==last;if(moved){last=cur();window.scrollTo(0,0)}render();if(moved)tabAnim(from,last)});
 
 (async function boot(){
   var cl=window.claude;
