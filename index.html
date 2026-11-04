@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0b1a3a">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-2">
+<meta name="durip-build" content="2026-11-05-3">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -22,6 +22,9 @@
     }).catch(function(){});
   }
   check();
+  /* no pinch / double-tap zoom on iPhone */
+  ['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});
+  var lastT=0;document.addEventListener('touchend',function(e){var n=Date.now();if(n-lastT<300&&!(e.target.closest&&e.target.closest('input,textarea,select')))e.preventDefault();lastT=n},{passive:false});
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check()});
 })();
 </script>
@@ -46,6 +49,8 @@
   color-scheme:light;
 }
 html,body{height:100%}
+html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
+*{touch-action:manipulation}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sky)}
 button,input,textarea,select{font-family:inherit;color:inherit;font-size:15px}
