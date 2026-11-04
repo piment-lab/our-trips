@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-7">
+<meta name="durip-build" content="2026-11-05-8">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -481,6 +481,29 @@ textarea.gt-t{display:block;resize:none;overflow:hidden;min-height:1.45em;font-f
 .stay{font-size:12.5px;font-weight:700;color:#c0563f}
 .addr{font-size:12px;color:var(--sub);overflow-wrap:anywhere}
 .more{flex:none;width:40px;height:44px;margin:4px 2px 0 0;border:0;border-radius:10px;background:none;color:var(--sub);cursor:pointer}
+.trow.mv .tt{font-size:12px;font-weight:500;color:var(--sub);padding-top:0;align-self:center}
+.trow.mv .tcol{align-items:center}
+.tdot{position:relative;z-index:1;width:8px;height:8px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 3px var(--bg)}
+.trow.mv.nomv .tdot{background:#c9d4e2}
+.mvb{display:flex;align-items:center;gap:10px;min-height:48px;flex:1;min-width:0;border:0;background:none;padding:0;color:var(--sub);font:inherit;font-size:14px;font-weight:500;text-align:left;cursor:pointer;border-radius:10px}
+.mvb .mvt{font-variant-numeric:tabular-nums}
+button.mvb:active{background:var(--soft)}
+.trow.mv.nomv .mvb{color:var(--mute);font-size:13px}
+.trow.mv.nomv .mvi{opacity:.5}
+.mvr{flex:none;font-size:13px;font-weight:700;color:var(--coral);text-decoration:none;padding:12px 4px 12px 10px}
+.mvh{display:flex;flex-direction:column;gap:4px;padding:8px 4px 14px}
+.mvh b{font-size:24px}.mvh span{font-size:13px;color:var(--sub)}
+.mvmodes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.mvmodes button{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:64px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--sub);font-size:12px;font-weight:700;cursor:pointer}
+.mvmodes button svg{width:22px;height:22px}
+.mvmodes button[aria-pressed="true"]{border-color:var(--navy);background:var(--navy);color:#fff}
+.mvdur{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
+.mvst{flex:none;width:52px;height:52px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--navy);font-size:24px;cursor:pointer}
+.mvbig{flex:1;display:flex;flex-direction:column;align-items:center}
+.mvbig b{font-size:30px;font-variant-numeric:tabular-nums}.mvbig small{font-size:12px;color:var(--sub)}
+.mvfine{display:flex;justify-content:center;gap:8px;margin:10px 0 6px;flex-wrap:wrap}
+.mvfine button{min-height:36px;padding:0 12px;border-radius:999px;border:0;background:var(--soft);color:var(--ink);font-size:13px;font-weight:700;cursor:pointer}
+.mvq{justify-content:center;margin:6px 0 14px}
 .trow.mv .mvc{display:flex;align-items:center;gap:8px;min-height:44px;color:var(--sub);font-size:13px;font-weight:500}
 .mvi{width:24px;height:24px;color:var(--mute)}.mvi svg{width:24px;height:24px}
 .lab{font-size:12px;font-weight:700;color:var(--sub)}
@@ -728,15 +751,19 @@ function vItinerary(){
 
   /* one section per day */
   days.forEach(function(date,di){
-    var list=itemsOn(date),n=0,prev=null,st=list.filter(function(x){return x.place});
+    var list=itemsOn(date),n=0,prev=null,pit=null,st=list.filter(function(x){return x.place});
     h+='<section class="isec" data-sec="'+di+'" aria-label="'+(di+1)+'日目"><div class="sechd"><b>'+(di+1)+'日目</b><span>'+jp(date)+'</span>'+(st.length?'<a class="link" href="'+routeUrl(st)+'" target="_blank" rel="noopener">ルートを開く</a>':'')+'</div>';
     if(!list.length)h+='<div class="card empty"><p class="note">この日の予定はまだありません。</p></div>';
     h+='<div class="tlv" data-date="'+date+'">';
     list.forEach(function(r){
       h+='<div class="grp" data-id="'+esc(r.id)+'">';
-      if(r.move||r.moveBy){
+      if(pit&&(r.move||r.moveBy||(r.place&&prev))){
         var ru=prev&&r.place?'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(prev)+'&destination='+encodeURIComponent(r.place)+'&travelmode='+({train:'transit',bus:'transit',walk:'walking'}[r.moveBy]||'driving'):'';
-        h+='<div class="trow mv"><div class="tt"></div><div class="tcol"></div><div class="mvc"><span class="mvi">'+ic(r.moveBy||'car')+'</span><span>'+esc(MOVE[r.moveBy]||'移動')+(r.move?' 約'+esc(r.move.replace(/^約\s*/,'')):'')+'</span>'+(ru?'<a class="link" href="'+ru+'" target="_blank" rel="noopener">経路</a>':'')+'</div></div>';
+        var has=!!(r.move||r.moveBy),dep=depTime(pit);
+        h+='<div class="trow mv'+(has?'':' nomv')+'"><div class="tt">'+esc(dep)+'</div><div class="tcol"><span class="tdot"></span></div><div class="mvc">'+
+          (S.canWrite?'<button type="button" class="mvb" data-mv="'+esc(r.id)+'" aria-label="移動の手段と時間を変更">':'<span class="mvb">')+
+          '<span class="mvi">'+ic(has?(r.moveBy||'car'):'car')+'</span><span class="mvt">'+(has?(r.move?'約'+esc(fmtMin(durMin(r.move))||r.move.replace(/^約\s*/,'')):esc(MOVE[r.moveBy]||'移動')):'移動を追加')+'</span>'+
+          (S.canWrite?'</button>':'</span>')+(ru?'<a class="mvr" href="'+ru+'" target="_blank" rel="noopener">経路</a>':'')+'</div></div>';
       }
       var num=r.place?++n:0,op=S.open===r.id;
       h+='<div class="trow"><div class="tt">'+esc(r.time||'')+'</div><div class="tcol"><span class="tn'+(num?'':' s')+'">'+(num||'')+'</span></div><div class="tc">'+
@@ -747,6 +774,7 @@ function vItinerary(){
         '</div></div>';
       h+='</div>';
       if(r.place)prev=r.place;
+      pit=r;
     });
     h+='</div>';
     if(S.canWrite)h+='<button class="btn ghost" data-add="'+di+'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'+(di+1)+'日目に予定を追加</button>';
@@ -761,6 +789,8 @@ function vItinerary(){
   view.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){if(justDragged)return;S.open=S.open===b.dataset.open?null:b.dataset.open;render()}});
   if(S.canWrite)view.querySelectorAll('.tlv[data-date]').forEach(function(tl){enableDrag(tl.dataset.date,tl)});
   view.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){var it=S.items.filter(function(x){return x.id===b.dataset.edit})[0];if(it)itemSheet(it,it.date)}});
+  view.querySelectorAll('[data-mv]').forEach(function(b){b.onclick=function(){var it=S.items.filter(function(x){return x.id===b.dataset.mv})[0];if(!it)return;
+    var l=itemsOn(it.date),k=l.indexOf(it);moveSheet(it,k>0?l[k-1]:null)}});
   view.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){itemSheet(null,days[+b.dataset.add])}});
   gtBind();
   var gb=document.getElementById('geo');if(gb)gb.onclick=function(){gb.disabled=true;gb.textContent='位置を調べています…';geocode(miss)};
@@ -1103,6 +1133,32 @@ async function reorder(date,from,to){
   var ch=[];l.forEach(function(x,i){var o=(i+1)*100;if(x.order!==o){x.order=o;ch.push(x)}});
   pending=false;render();
   try{await Promise.all(ch.map(function(x){return col('items').doc(x.id).update({order:x.order})}))}catch(e){fail(e)}
+}
+function durMin(t){t=String(t||'');var h=/(\d+(?:\.\d+)?)\s*時間/.exec(t),m=/(\d+)\s*分/.exec(t);if(!h&&!m)return 0;return Math.round((h?parseFloat(h[1])*60:0)+(m?+m[1]:0))}
+function fmtMin(n){n=Math.round(n||0);if(n<=0)return '';var h=Math.floor(n/60),m=n%60;return (h?h+'時間':'')+(m?m+'分':'')}
+function depTime(p){if(!p||!p.time)return '';var t=String(p.time),e=/[–-]\s*(\d{1,2}:\d{2})/.exec(t);if(e)return e[1];
+  var s=/^(\d{1,2}):(\d{2})/.exec(t),st=durMin(p.stay);if(s&&st){var x=(+s[1])*60+(+s[2])+st;return Math.floor(x/60)%24+':'+('0'+x%60).slice(-2)}return ''}
+function moveSheet(it,pv){
+  var mode=it.moveBy||'car',min=durMin(it.move);
+  var h='<div class="ttw"><div class="tt-top"><button type="button" class="tt-x" data-close aria-label="閉じる">'+TI.x+'</button><button type="button" class="tt-save" id="mv_s">保存</button></div>'+
+    '<div class="mvh"><b>移動</b><span>'+(pv?esc(pv.title)+' → ':'')+esc(it.title)+'</span></div>'+
+    '<div class="mvmodes" role="group" aria-label="移動手段">'+Object.keys(MOVE).map(function(k){return '<button type="button" data-md="'+k+'" aria-pressed="'+(k===mode)+'">'+ic(k)+'<span>'+MOVE[k]+'</span></button>'}).join('')+'</div>'+
+    '<div class="mvdur"><button type="button" class="mvst" data-st="-60" aria-label="1時間減らす">−</button><div class="mvbig"><b id="mv_v"></b><small>移動時間</small></div><button type="button" class="mvst" data-st="60" aria-label="1時間増やす">＋</button></div>'+
+    '<div class="mvfine"><button type="button" data-st="-5">−5分</button><button type="button" data-st="5">＋5分</button><button type="button" data-st="-15">−15分</button><button type="button" data-st="15">＋15分</button></div>'+
+    '<div class="tt-chips mvq">'+[10,15,30,45,60,90,120,180].map(function(m){return '<button type="button" class="tt-chip" data-q="'+m+'">'+fmtMin(m)+'</button>'}).join('')+'</div>'+
+    (typeof roadRoute==='function'&&pv&&typeof pv.lat==='number'&&typeof it.lat==='number'?'<button type="button" class="btn line" id="mv_auto">車のルートから自動で計算</button>':'')+
+    (it.move||it.moveBy?'<button type="button" class="tt-del" id="mv_del">移動の表示を消す</button>':'');
+  openSheet(h+'</div>',function(){
+    var g=function(id){return document.getElementById(id)},show=function(){g('mv_v').textContent=min?fmtMin(min):'未設定'};show();
+    sheetRoot.querySelectorAll('[data-md]').forEach(function(b){b.onclick=function(){mode=b.dataset.md;sheetRoot.querySelectorAll('[data-md]').forEach(function(x){x.setAttribute('aria-pressed',x===b)})}});
+    sheetRoot.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){min=Math.max(0,min+(+b.dataset.st));show()}});
+    sheetRoot.querySelectorAll('[data-q]').forEach(function(b){b.onclick=function(){min=+b.dataset.q;show()}});
+    var au=g('mv_auto');if(au)au.onclick=function(){au.disabled=true;au.textContent='計算しています…';
+      roadRoute([[pv.lat,pv.lng],[it.lat,it.lng]]).then(function(r){au.disabled=false;au.textContent='車のルートから自動で計算';
+        if(r){min=Math.max(1,Math.round(r.sec/60));mode='car';sheetRoot.querySelectorAll('[data-md]').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.md==='car')});show()}else toast('ルートを計算できませんでした')})};
+    g('mv_s').onclick=function(){col('items').doc(it.id).update({moveBy:mode,move:fmtMin(min),moveMin:min}).then(function(){closeSheet();toast('保存しました')}).catch(fail)};
+    var d=g('mv_del');if(d)d.onclick=function(){col('items').doc(it.id).update({moveBy:'',move:'',moveMin:0}).then(function(){closeSheet()}).catch(fail)};
+  });
 }
 function shortP(p){return String(p).replace(/^〒?\d{3}-?\d{4}\s*/,'').slice(0,14)}
 
