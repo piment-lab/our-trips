@@ -42,6 +42,7 @@ header.sky{position:relative;padding-block:28px 34px;padding-left:max(20px,env(s
 .pinm span{display:flex;width:30px;height:30px;border-radius:50%;background:#163a6b;color:#fff;font:700 13px/1 'Noto Sans JP',sans-serif;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);box-sizing:border-box}
 .pinm.last span{background:#e8796a}
 .leaflet-container{font-family:inherit}
+.rtinfo{background:#fff;color:#12284d;font:700 12px/1 'Noto Sans JP',sans-serif;padding:7px 10px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .splash{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#1b3466,#0b1a3a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;font-family:'Noto Sans JP','Hiragino Sans',system-ui,sans-serif}
 .spl-ic{width:116px;height:116px;animation:splpop .7s cubic-bezier(.2,1.4,.4,1) both}
 .spl-pl{animation:splfly 1.1s cubic-bezier(.3,.9,.3,1) both;transform-origin:300px 196px}
@@ -144,7 +145,7 @@ textarea.in{min-height:84px;resize:vertical;line-height:1.6}
 @keyframes scout{to{background:rgba(11,26,58,0)}}
 @keyframes shup{from{transform:translateY(100%)}}
 @keyframes shdown{to{transform:translateY(100%)}}
-.grab{width:44px!important;height:5px!important;padding:6px 0;background-clip:content-box;touch-action:none;cursor:grab;align-self:center;width:40px;height:4px;border-radius:2px;background:#cbd5e2}
+.grab{width:44px!important;height:5px!important;padding:0!important;border-radius:3px!important;margin:2px 0 4px;position:relative;touch-action:none;cursor:grab;align-self:center;width:40px;height:4px;border-radius:2px;background:#cbd5e2}
 .sheet h2{margin:0;font-size:18px}
 .acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 /* tab bar */
@@ -224,7 +225,8 @@ textarea.in{min-height:84px;resize:vertical;line-height:1.6}
 .tt-dt{flex-wrap:nowrap!important}
 .tt-dt .tt-pill{padding:0 10px;font-size:14px}
 .tt-dt input[type=date]{flex:1 1 auto!important;max-width:170px!important;min-width:0}
-.tt-dt .tm{flex:0 0 auto!important;width:96px;max-width:96px}
+.tt-dt .tm{flex:0 0 auto!important;width:112px;max-width:112px}
+.grab::before{content:"";position:absolute;left:-40px;right:-40px;top:-14px;bottom:-14px}
 .tt-pill[type=date]{min-width:0;flex:1 1 140px;max-width:180px}.tt-pill[type=time]{flex:0 0 auto}
 .tt-pill{border:0;border-radius:10px;background:var(--soft);color:var(--ink);font-size:15px;min-height:42px;padding:0 12px;font-variant-numeric:tabular-nums}
 .tt-pn{padding:12px 0 16px 38px;border-bottom:1px solid var(--line)}
@@ -248,6 +250,20 @@ textarea.tt-in{resize:vertical;line-height:1.6;padding-top:0}
 .tt-chips{display:flex;flex-wrap:wrap;gap:10px}
 .tt-chip{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:999px;border:0;background:var(--soft);color:var(--ink);font-size:15px;cursor:pointer}
 .tt-chip svg{color:var(--sub)}
+.nx{display:flex;align-items:center;gap:16px;width:100%;padding:16px 16px 16px 18px;border:0;border-radius:18px;background:var(--card);box-shadow:0 1px 4px rgba(18,40,77,.08);text-align:left;cursor:pointer;color:var(--ink)}
+.nx-d{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:64px;height:64px;border-radius:16px;background:var(--navy);color:#fff}
+.nx-d b{font-size:26px;line-height:1;font-variant-numeric:tabular-nums}.nx-d small{font-size:11px;opacity:.8;margin-top:3px}
+.nx-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.nx-l{font-size:11.5px;font-weight:700;color:var(--coral);letter-spacing:.04em}
+.nx-n{font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nx-s{font-size:12.5px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nx .chev{color:var(--mute)}
+.tt-trow{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.tt-trow .tt-title{border-bottom:0;padding-left:6px}
+.tt-tic{flex:none;width:40px;height:40px;border-radius:12px;background:var(--soft);color:var(--navy);display:flex;align-items:center;justify-content:center;margin-left:2px}
+.tt-tic svg,.tt-ic-now svg{width:20px;height:20px}
+.tt-ic-now{display:flex}
+select.tt-pill{appearance:auto}
 .tt-del{margin-top:22px;min-height:48px;border:0;background:none;color:#c0392b;font-size:15px;font-weight:700;cursor:pointer;border-radius:12px}
 .tt-del.sure{background:#c0392b;color:#fff}
 .tt-hist{display:flex;flex-direction:column}
@@ -558,11 +574,9 @@ function vHome(){
   var h='',today=D(iso(new Date())),up=S.trips.filter(function(t){return D(t.end||t.start)>=today}).sort(function(a,b){return D(a.start)-D(b.start)})[0];
   if(up){
     var diff=Math.round((D(up.start)-today)/864e5);
-    var tdn=up.id===S.tid?S.todos.length:0,tdd=up.id===S.tid?S.todos.filter(function(x){return x.done}).length:0;
-    h+='<button class="next sky" data-trip="'+esc(up.id)+'"><span class="eyebrow">'+(diff>0?'NEXT TRIP':'ON THE TRIP')+'</span>'+
-      '<span class="nt"><span class="nm">'+esc(up.title)+'</span><span class="nd">'+dots(up.start)+(up.end&&up.end!==up.start?' – '+dots(up.end):'')+'</span>'+(up.place?'<span class="nd">'+esc(up.place)+'</span>':'')+'</span>'+
-      '<span class="cd">'+(diff>0?'<b>'+diff+'</b><small>日後に出発</small>':diff===0?'<b>今日</b><small>出発の日</small>':'<b>'+(1-diff)+'</b><small>日目</small>')+'</span>'+
-      (tdn?'<span class="tdo">やること '+tdd+' / '+tdn+'<i><span style="width:'+Math.round(tdd/tdn*100)+'%"></span></i></span>':'')+'</button>';
+    h+='<button class="nx" data-trip="'+esc(up.id)+'"><span class="nx-d"><b>'+(diff>0?diff:diff===0?'今日':(1-diff))+'</b><small>'+(diff>0?'日後':diff===0?'出発':'日目')+'</small></span>'+
+      '<span class="nx-t"><span class="nx-l">'+(diff>0?'次の旅行':'旅行中')+'</span><span class="nx-n">'+esc(up.title)+'</span><span class="nx-s">'+dots(up.start)+(up.end&&up.end!==up.start?' – '+dots(up.end):'')+(up.place?' ・ '+esc(up.place):'')+'</span></span>'+
+      '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
   }
   if(S.canWrite)h+='<button class="btn" id="newTrip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>新しい旅行を追加</button>';
   h+='<h2 class="sec">メンバー</h2><div class="mrow">'+S.members.map(function(m){return '<button class="mbr" data-mem="'+esc(m.id)+'"><span class="av lg" style="background:'+esc(m.color)+'" aria-hidden="true">'+esc((m.name||'?').charAt(0))+'</span><span>'+esc(m.name)+'</span></button>'}).join('')+
@@ -1017,6 +1031,16 @@ function vMap(){
 var chart=null;
 var mapHost=null,mapSig='';
 function dropMap(){if(chart){try{chart.remove()}catch(e){}}chart=null;mapHost=null;mapSig=''}
+var routeCache={};
+function roadRoute(ll){
+  var key=ll.map(function(p){return p[0].toFixed(5)+','+p[1].toFixed(5)}).join(';');
+  if(routeCache[key])return routeCache[key];
+  try{var c=localStorage.getItem('route:'+key);if(c)return routeCache[key]=Promise.resolve(JSON.parse(c))}catch(e){}
+  var url='https://router.project-osrm.org/route/v1/driving/'+ll.map(function(p){return p[1]+','+p[0]}).join(';')+'?overview=full&geometries=geojson';
+  return routeCache[key]=fetch(url).then(function(r){return r.json()}).then(function(j){
+    if(!j||!j.routes||!j.routes[0])return null;var rt=j.routes[0],o={coords:rt.geometry.coordinates.map(function(c){return [c[1],c[0]]}),sec:rt.duration,m:rt.distance};
+    try{localStorage.setItem('route:'+key,JSON.stringify(o))}catch(e){}return o}).catch(function(){delete routeCache[key];return null});
+}
 function drawMap(stops){
   var el=document.getElementById('mapc'),pts=stops.filter(function(x){return typeof x.lat==='number'&&typeof x.lng==='number'});
   var sig=el.className+'|'+pts.map(function(p){return p.id+':'+p.lat+','+p.lng+':'+p.title}).join(';');
@@ -1028,7 +1052,15 @@ function drawMap(stops){
   chart=L.map(el,{zoomControl:false,attributionControl:true,scrollWheelZoom:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(chart);
   var ll=pts.map(function(p){return [p.lat,p.lng]});
-  if(ll.length>1)L.polyline(ll,{color:'#163a6b',weight:4,opacity:.85,dashArray:'2 9',lineCap:'round'}).addTo(chart);
+  var line=null,me=chart;
+  if(ll.length>1){line=L.polyline(ll,{color:'#163a6b',weight:3,opacity:.45,dashArray:'2 9',lineCap:'round'}).addTo(chart);
+    roadRoute(ll).then(function(r){if(!r||chart!==me)return;
+      L.polyline(r.coords,{color:'#ffffff',weight:9,opacity:.9,lineCap:'round',lineJoin:'round'}).addTo(chart);
+      line.remove();line=L.polyline(r.coords,{color:'#2463b0',weight:5,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(chart);
+      chart.eachLayer(function(l){if(l instanceof L.Marker)l.setZIndexOffset(1000)});
+      chart.fitBounds(line.getBounds(),{padding:[36,36]});
+      var mins=Math.round(r.sec/60);if(mins>0){var c=L.control({position:'bottomleft'});c.onAdd=function(){var d=L.DomUtil.create('div','rtinfo');d.textContent='車で約'+(mins>=60?Math.floor(mins/60)+'時間'+(mins%60?mins%60+'分':''):mins+'分')+'・'+(r.m/1000).toFixed(r.m<10000?1:0)+'km';return d};c.addTo(chart)}
+    });}
   pts.forEach(function(p,i){var last=i===pts.length-1&&pts.length>1;
     L.marker([p.lat,p.lng],{icon:L.divIcon({className:'pinm'+(last?' last':''),html:'<span>'+(stops.indexOf(p)+1)+'</span>',iconSize:[30,30],iconAnchor:[15,15]})}).addTo(chart).bindTooltip(p.title,{direction:'top',offset:[0,-14]})});
   if(ll.length===1)chart.setView(ll[0],14);else chart.fitBounds(ll,{padding:[36,36]});
@@ -1385,43 +1417,52 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheetRoot.i
 
 function itemSheet(it,date){
   var t=trip(),days=daysOf(t),icon=(it&&it.icon)||'pin',tp=parseTime(it&&it.time);
-  var h='<h2>'+(it?'予定を編集':'予定を追加')+'</h2>'+
-   '<div class="f"><label for="it_date">日にち</label><select class="in" id="it_date">'+days.map(function(d,i){return '<option value="'+d+'"'+(d===((it&&it.date)||date)?' selected':'')+'>'+(i+1)+'日目 '+jp(d)+'</option>'}).join('')+'</select></div>'+
-   '<div class="f"><span class="lab">時間</span><div class="timebox"><input type="time" class="in" id="it_ts" aria-label="開始時刻" value="'+tp.s+'"><span aria-hidden="true">–</span><input type="time" class="in" id="it_te" aria-label="終了時刻（なくても可）" value="'+tp.e+'"></div>'+
-   '<div class="qchips"><button type="button" data-q="-15">−15分</button><button type="button" data-q="15">＋15分</button><button type="button" data-q="60">＋1時間</button><label class="qchk" for="it_open"><input type="checkbox" id="it_open"'+(tp.open?' checked':'')+'>以降（〜）</label><button type="button" data-q="clear">時間なし</button></div>'+
-   '<input class="in" id="it_tfree" placeholder="時刻の代わりに文字で表示（例：その後）" value="'+esc(tp.free)+'" aria-label="時刻の代わりに表示する文字"></div>'+
-   '<div class="f"><label for="it_title">タイトル</label><input class="in" id="it_title" placeholder="例：仁川空港に到着" value="'+esc(it?it.title:'')+'"></div>'+
-   '<div class="f"><label for="it_sub">ひとこと</label><input class="in" id="it_sub" placeholder="例：入国審査のあとAREXでソウル駅へ" value="'+esc(it?it.sub:'')+'"></div>'+
-   '<div class="f"><label for="it_place">場所（地図に表示）</label><input class="in" id="it_place" placeholder="例：仁川国際空港" value="'+esc(it?it.place:'')+'"></div>'+
-   '<div class="two"><div class="f"><label for="it_stay">滞在時間</label><input class="in" id="it_stay" placeholder="例：1時間" value="'+esc(it&&it.stay||'')+'"></div>'+
-   '<div class="f"><label for="it_moveby">前の予定からの移動</label><select class="in" id="it_moveby"><option value="">なし</option>'+Object.keys(MOVE).map(function(k){return '<option value="'+k+'"'+(it&&it.moveBy===k?' selected':'')+'>'+MOVE[k]+'</option>'}).join('')+'</select></div></div>'+
-   '<div class="f"><label for="it_move">移動時間</label><input class="in" id="it_move" placeholder="例：2時間35分" value="'+esc(it&&it.move||'')+'"></div>'+
-   '<div class="f"><span style="font-size:12px;font-weight:700;color:var(--sub)">アイコン</span><div class="icons" role="group" aria-label="アイコン">'+ICONS.map(function(k){return '<button type="button" data-ic="'+k+'" aria-pressed="'+(k===icon)+'" aria-label="'+I[k][0]+'" title="'+I[k][0]+'">'+ic(k)+'</button>'}).join('')+'</div></div>'+
-   '<div class="f"><label for="it_note">メモ</label><textarea class="in" id="it_note" placeholder="予約番号や注意点など">'+esc(it?it.note:'')+'</textarea></div>'+
-   '<div class="acts"><button class="btn line" data-close>閉じる</button><button class="btn" id="it_save">保存する</button></div>'+
-   (it?'<button class="btn warn" id="it_del">この予定を削除</button>':'');
+  var hasT=!!tp.s,opt={sub:!!(it&&it.sub),stay:!!(it&&it.stay),move:!!(it&&(it.moveBy||it.move)),icon:false,note:!!(it&&it.note)};
+  var acc=function(key,inner,open){return '<div class="tt-acc'+(open?' open':'')+'" data-acc="'+key+'"><div class="tt-acc-in">'+inner+'</div></div>'};
+  var f='<div class="tt-row"><span class="tt-i">'+TI.day+'</span><span class="tt-l">日にち</span><select class="tt-pill" id="it_date" aria-label="日にち">'+days.map(function(d,i){return '<option value="'+d+'"'+(d===((it&&it.date)||date)?' selected':'')+'>'+(i+1)+'日目 '+(D(d).getMonth()+1)+'/'+D(d).getDate()+'（'+WD[D(d).getDay()]+'）</option>'}).join('')+'</select></div>'+
+    '<div class="tt-row"><span class="tt-i">'+TI.day.replace('<path d="M12 7v5l3 2"/>','<path d="M12 7v5l3 2"/>')+'</span><label class="tt-l" for="it_hast">時間を決める</label><input type="checkbox" role="switch" class="tgl" id="it_hast"'+(hasT?' checked':'')+'></div>'+
+    acc('time','<div class="tt-row sub" style="border-bottom:1px solid var(--line)"><span class="tt-l">時刻</span><span class="tt-dt"><input type="time" class="tt-pill tm" id="it_ts" value="'+(tp.s||'09:00')+'" aria-label="開始時刻"><span aria-hidden="true" style="color:var(--sub)">〜</span><input type="time" class="tt-pill tm" id="it_te" value="'+tp.e+'" aria-label="終了時刻（なくても可）"></span></div>',hasT)+
+    '<div class="tt-row"><span class="tt-i">'+TI.pin+'</span><input class="tt-in" id="it_place" placeholder="場所を追加（地図に表示されます）" value="'+esc(it?it.place:'')+'" autocomplete="off"></div>'+
+    acc('sub','<div class="tt-row"><span class="tt-i">'+TI.memo+'</span><input class="tt-in" id="it_sub" placeholder="ひとこと（例：入国審査のあとソウル駅へ）" value="'+esc(it?it.sub:'')+'"></div>',opt.sub)+
+    acc('stay','<div class="tt-row"><span class="tt-i">'+TI.day+'</span><span class="tt-l" style="flex:none">滞在</span><input class="tt-in" id="it_stay" placeholder="例：1時間" value="'+esc(it&&it.stay||'')+'"></div>',opt.stay)+
+    acc('move','<div class="tt-row"><span class="tt-i">'+ic('car')+'</span><select class="tt-pill" id="it_moveby" aria-label="前の予定からの移動手段">'+Object.keys(MOVE).map(function(k){return '<option value="'+k+'"'+((it&&it.moveBy||'car')===k?' selected':'')+'>'+MOVE[k]+'</option>'}).join('')+'</select><input class="tt-in" id="it_move" placeholder="移動時間（例：2時間35分）" value="'+esc(it&&it.move||'')+'"></div>',opt.move)+
+    acc('icon','<div class="tt-pn" style="padding-left:0"><div class="icons" role="group" aria-label="アイコン">'+ICONS.map(function(k){return '<button type="button" data-ic="'+k+'" aria-pressed="'+(k===icon)+'" aria-label="'+I[k][0]+'" title="'+I[k][0]+'">'+ic(k)+'</button>'}).join('')+'</div></div>',opt.icon)+
+    acc('note','<div class="tt-row top"><span class="tt-i">'+TI.memo+'</span><textarea class="tt-in" id="it_note" placeholder="メモ（予約番号や注意点など）" rows="3">'+esc(it?it.note:'')+'</textarea></div>',opt.note)+
+    '<div class="tt-row top"><span class="tt-i" style="padding-top:8px">'+TI.plus+'</span><div class="tt-chips">'+
+      [['sub','ひとこと',TI.memo],['stay','滞在時間',TI.day],['move','移動',ic('car')],['icon','アイコン','<span class="tt-ic-now">'+ic(icon)+'</span>'],['note','メモ',TI.memo]].map(function(a){return '<button type="button" class="tt-chip'+(opt[a[0]]?' gone':'')+'" data-add="'+a[0]+'">'+a[2]+a[1]+'</button>'}).join('')+'</div></div>'+
+    (it?'<button type="button" class="tt-del" id="it_del">この予定を削除</button>':'');
+  var h='<div class="ttw"><div class="tt-top"><button type="button" class="tt-x" data-close aria-label="閉じる">'+TI.x+'</button><button type="button" class="tt-save" id="it_save">保存</button></div>'+
+    '<div class="tt-trow"><span class="tt-tic" id="it_icnow">'+ic(icon)+'</span><input class="tt-title" id="it_title" placeholder="予定のタイトル" aria-label="タイトル" autocomplete="off" value="'+esc(it?it.title:'')+'"></div>'+
+    '<div class="tt-form">'+f+'</div></div>';
   openSheet(h,function(){
-    var ts=document.getElementById('it_ts'),te=document.getElementById('it_te');
-    var shift=function(v,m){var x=tmin(v);if(x==null)return v;x=((x+m)%1440+1440)%1440;return ('0'+Math.floor(x/60)).slice(-2)+':'+('0'+x%60).slice(-2)};
-    sheetRoot.querySelectorAll('[data-q]').forEach(function(b){b.onclick=function(){var q=b.dataset.q;
-      if(q==='clear'){ts.value='';te.value='';document.getElementById('it_open').checked=false;return}
-      var m=+q;if(!ts.value){ts.value='09:00';return}ts.value=shift(ts.value,m);if(te.value)te.value=shift(te.value,m)}});
-    [ts,te].forEach(function(x){x.addEventListener('input',function(){if(x.value)document.getElementById('it_tfree').value=''})});
-    sheetRoot.querySelectorAll('[data-ic]').forEach(function(b){b.onclick=function(){icon=b.dataset.ic;sheetRoot.querySelectorAll('[data-ic]').forEach(function(x){x.setAttribute('aria-pressed',x===b)})}});
-    document.getElementById('it_save').onclick=function(){
-      var g=function(id){return document.getElementById(id).value.trim()};
-      var title=g('it_title');if(!title){toast('タイトルを入力してください');return}
-      var d=g('it_date'),s0=g('it_ts'),e0=g('it_te'),free=g('it_tfree'),op=document.getElementById('it_open').checked;
-      var time=free||(s0?s0+(e0?'\n– '+e0:(op?'〜':'')):'');
+    sheetRoot.querySelector('.sheet').classList.add('full');
+    var g=function(id){return document.getElementById(id)},root=sheetRoot;
+    var setAcc=function(k,on){var a=root.querySelector('[data-acc="'+k+'"]');if(a)a.classList.toggle('open',on)};
+    g('it_hast').onchange=function(){hasT=this.checked;setAcc('time',hasT)};
+    root.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){var k=b.dataset.add;opt[k]=true;setAcc(k,true);
+      if(k!=='icon')b.classList.add('gone');else{var on=!root.querySelector('[data-acc="icon"]').classList.contains('open');setAcc('icon',!on===false?true:on)}
+      var x=g('it_'+(k==='move'?'move':k));if(x&&k!=='icon')setTimeout(function(){x.focus()},200)}});
+    root.querySelector('[data-add="icon"]').onclick=function(){var a=root.querySelector('[data-acc="icon"]');setAcc('icon',!a.classList.contains('open'))};
+    root.querySelectorAll('[data-ic]').forEach(function(b){b.onclick=function(){icon=b.dataset.ic;root.querySelectorAll('[data-ic]').forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+      g('it_icnow').innerHTML=ic(icon);var n=root.querySelector('.tt-ic-now');if(n)n.innerHTML=ic(icon);setTimeout(function(){setAcc('icon',false)},150)}});
+    var ti=g('it_title');ti.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ti.blur()}});
+    g('it_save').onclick=function(){
+      var v=function(id){var x=g(id);return x?x.value.trim():''};
+      var title=v('it_title');if(!title){toast('タイトルを入力してください');ti.focus();return}
+      var d=v('it_date'),s0=hasT?v('it_ts'):'',e0=hasT?v('it_te'):'';
+      var time=s0?s0+(e0?'\n– '+e0:''):(hasT?'':(tp.free&&!tp.s?tp.free:''));
+      if(s0&&e0&&e0<s0){toast('終了時刻は開始時刻より後にしてください');return}
       var order=(it&&it.date===d&&it.time===time)?it.order:placeOrder(d,s0,it&&it.id);
-      var body={date:d,time:time,title:title,sub:g('it_sub'),place:g('it_place'),note:document.getElementById('it_note').value.trim(),icon:icon,order:order,stay:g('it_stay'),moveBy:g('it_moveby'),move:g('it_moveby')?g('it_move'):''};
+      var body={date:d,time:time,title:title,sub:v('it_sub'),place:v('it_place'),note:v('it_note'),icon:icon,order:order,stay:v('it_stay'),moveBy:opt.move?v('it_moveby'):'',move:opt.move?v('it_move'):''};
       if(it&&it.place===body.place&&typeof it.lat==='number'){body.lat=it.lat;body.lng=it.lng}
       var ref=it?col('items').doc(it.id):col('items').doc();
       ref.set(body).then(function(){closeSheet();toast('保存しました');S.dayIdx=Math.max(0,days.indexOf(d));if(body.place&&typeof body.lat!=='number')geocode([{id:ref.id,place:body.place}])}).catch(fail);
     };
-    var del=document.getElementById('it_del');
+    var del=g('it_del');
     if(del)del.onclick=function(){if(!del.classList.contains('sure')){del.classList.add('sure');del.textContent='本当に削除する';return}
-      col('items').doc(it.id).delete().then(function(){closeSheet();toast('削除しました')}).catch(fail)};
+      var keep=Object.assign({},it);delete keep.id;var id=it.id;
+      col('items').doc(id).delete().then(function(){closeSheet();snack('予定を削除しました',function(){col('items').doc(id).set(keep).catch(fail)})}).catch(fail)};
+    if(!it)setTimeout(function(){ti.focus()},380);
   });
 }
 
@@ -1477,9 +1518,9 @@ setTimeout(hideSplash,4500);
 function render(){
   if(S.status!=='loading')hideSplash();
   var v=cur();
-  if(S.status==='nodb'){headPlain('Our Trips','旅行アプリ');view.innerHTML='<div class="card empty"><strong>旅行データを読み込めません</strong><p class="note">データの保存先の設定が見つかりません。管理者に連絡してください。</p></div>';fab.hidden=true;return}
+  if(S.status==='nodb'){headApp('Durip');view.innerHTML='<div class="card empty"><strong>旅行データを読み込めません</strong><p class="note">データの保存先の設定が見つかりません。管理者に連絡してください。</p></div>';fab.hidden=true;return}
   if(S.status==='loading'&&!S.trips.length){view.innerHTML='<div class="card empty"><p class="note">旅行データを読み込んでいます…</p></div>';return}
-  if(S.status==='slow'&&!S.trips.length){headPlain('Our Trips','旅行アプリ');view.innerHTML='<div class="card empty"><strong>まだデータに届いていません</strong><p class="note">通信状況を確認して、少しお待ちください。</p></div>';return}
+  if(S.status==='slow'&&!S.trips.length){headApp('Durip');view.innerHTML='<div class="card empty"><strong>まだデータに届いていません</strong><p class="note">通信状況を確認して、少しお待ちください。</p></div>';return}
   if(v!=='home'&&v!=='calendar'&&!trip()){if(S.trips.length){selectTrip(S.trips[0].id)}else{v='home'}}
   if(v!=='map'&&v!=='itinerary'&&chart)dropMap();
   VIEWS[v]();
