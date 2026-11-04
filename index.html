@@ -386,7 +386,8 @@ select.tt-pill{appearance:auto}
 .gt-c:hover .ck,.gt-c.on .ck{opacity:1}
 .gt-c.on{color:#2463b0}.gt-c.on circle{fill:#2463b0;stroke:#2463b0}.gt-c.on .ck{stroke:#fff}
 .gt-b{flex:1;min-width:0;display:flex;flex-direction:column;padding:11px 0 9px}
-.gt-t{border:0;background:transparent;padding:0;font-size:15px;line-height:1.45;color:var(--ink);width:100%;outline:none;overflow-wrap:anywhere}
+.gt-t{border:0;background:transparent;padding:0;font-size:15px;line-height:1.45;color:var(--ink);width:100%;outline:none;overflow-wrap:anywhere;white-space:pre-wrap;word-break:break-word}
+textarea.gt-t{display:block;resize:none;overflow:hidden;min-height:1.45em;font-family:inherit;margin:0}
 .gt-n{display:block;border:0;background:transparent;padding:2px 0 0;font-size:13px;line-height:1.5;color:var(--sub);resize:none;outline:none;width:100%;overflow:hidden;cursor:text}
 .gt-del{flex:none;width:40px;height:44px;border:0;background:none;color:var(--mute);cursor:pointer;opacity:0;pointer-events:none;border-radius:10px}
 .gt-row.act .gt-del,.gt-del.show{opacity:1;pointer-events:auto}
@@ -767,7 +768,7 @@ function gtListHtml(){
   if(!open.length)h+='<p class="note gt-empty">'+(done.length?'すべて完了しました。':'予約やチケットの購入など、旅行までにやることを追加しましょう。')+'</p>';
   open.forEach(function(x){
     h+='<div class="gt-row" data-gt="'+esc(x.id)+'"><button class="gt-c" data-gtc="'+esc(x.id)+'" aria-label="「'+esc(x.text)+'」を完了にする"'+(S.canWrite?'':' disabled')+'>'+GT_CIRCLE+'</button>'+
-      '<div class="gt-b"><input class="gt-t" data-gtt="'+esc(x.id)+'" value="'+esc(x.text)+'" aria-label="タスク" autocomplete="off" enterkeyhint="done"'+ro+'>'+
+      '<div class="gt-b"><textarea class="gt-t" data-gtt="'+esc(x.id)+'" rows="1" aria-label="タスク" autocomplete="off" enterkeyhint="done"'+ro+'>'+esc(x.text)+'</textarea>'+
       ((x.who||[]).length?'<div class="gt-who">'+avs(x.who)+'</div>':'')+
       (x.notes?'<div class="gt-prev" data-gtp="'+esc(x.id)+'">'+esc(x.notes)+'</div>':'')+
       gtPanel(x,x.id,ro)+
@@ -899,7 +900,8 @@ function gtBindList(){
       if(b.dataset.gtclr){gtSetDue(id,{due:'',dueTime:'',repeat:''});return}
       if(q==='today'||q==='tomorrow'){gtSetDue(id,quickDue(q));return}
       dpSheet(x,function(v){gtSetDue(id,v)})}});
-  list.querySelectorAll('.gt-t[data-gtt]').forEach(function(inp){
+  list.querySelectorAll('.gt-t[data-gtt]').forEach(function(inp){gtFit(inp);
+    inp.addEventListener('input',function(){if(/\n/.test(inp.value))inp.value=inp.value.replace(/\n/g,' ');gtFit(inp)});
     inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();inp.blur()}});
     inp.addEventListener('change',function(){var id=inp.dataset.gtt,v=inp.value.trim();
       if(!v)col('todos').doc(id).delete().then(function(){toast('タスクを削除しました')}).catch(fail);else col('todos').doc(id).update({text:v}).catch(fail)});
