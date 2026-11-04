@@ -42,6 +42,21 @@ header.sky{position:relative;padding-block:28px 34px;padding-left:max(20px,env(s
 .pinm span{display:flex;width:30px;height:30px;border-radius:50%;background:#163a6b;color:#fff;font:700 13px/1 'Noto Sans JP',sans-serif;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);box-sizing:border-box}
 .pinm.last span{background:#e8796a}
 .leaflet-container{font-family:inherit}
+.splash{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#1b3466,#0b1a3a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;font-family:'Noto Sans JP','Hiragino Sans',system-ui,sans-serif}
+.spl-ic{width:116px;height:116px;animation:splpop .7s cubic-bezier(.2,1.4,.4,1) both}
+.spl-pl{animation:splfly 1.1s cubic-bezier(.3,.9,.3,1) both;transform-origin:300px 196px}
+.spl-trail{animation:spltr 1.1s ease-out both}
+.spl-t{font-size:40px;font-weight:700;letter-spacing:.02em;line-height:1;animation:splup .6s .18s cubic-bezier(.2,.9,.3,1) both}
+.spl-s{font-size:13px;font-weight:500;opacity:.7;letter-spacing:.2em;animation:splup .6s .3s cubic-bezier(.2,.9,.3,1) both}
+.splash.out{animation:splout .5s cubic-bezier(.4,0,.2,1) forwards}
+.splash.out .spl-pl{animation:splaway .5s ease-in forwards}
+@keyframes splpop{from{opacity:0;transform:scale(.7)}}
+@keyframes splfly{from{opacity:0;transform:translate(-70px,60px)}}
+@keyframes spltr{from{opacity:0}}
+@keyframes splup{from{opacity:0;transform:translateY(10px)}}
+@keyframes splout{to{opacity:0;transform:scale(1.06);visibility:hidden}}
+@keyframes splaway{to{transform:translate(90px,-80px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.splash *,.splash{animation-duration:.01s!important;animation-delay:0s!important}}
 .apph{flex-direction:row!important;align-items:flex-end;justify-content:space-between;gap:12px}
 .apph-t{display:flex;flex-direction:column;gap:4px;min-width:0}
 .apph-e{font-size:12px;font-weight:500;opacity:.75;letter-spacing:.02em;font-variant-numeric:tabular-nums}
@@ -402,6 +417,7 @@ nav.tabs svg{width:24px;height:24px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
+<div class="splash" id="splash" role="status" aria-label="Duripを起動しています"><svg class="spl-ic" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#ffffff" fill-opacity=".08"/><path class="spl-trail" d="M96 330 C170 300 230 250 300 200" stroke="#ffffff" stroke-opacity=".45" stroke-width="10" stroke-linecap="round" stroke-dasharray="4 26" fill="none"/><g class="spl-pl"><g transform="translate(300 196) rotate(-38) scale(5.2)"><path d="M-22 0 C-22 -2.6 -19 -3.4 -16 -3.4 L-4 -3.4 L8 -20 L14 -20 L8 -3.4 L19 -3.4 L23.5 -9 L27 -9 L25 0 L27 9 L23.5 9 L19 3.4 L8 3.4 L14 20 L8 20 L-4 3.4 L-16 3.4 C-19 3.4 -22 2.6 -22 0 Z" fill="#ffffff" transform="scale(-1,1)"/></g></g><circle cx="392" cy="112" r="7" fill="#f6c9b8"/></svg><span class="spl-t">Durip</span><span class="spl-s">ふたりの旅行</span></div>
 <div class="app">
   <header class="sky" id="hdr"><div class="hin"><span class="script">Trip</span><span class="hsub">読み込み中…</span></div></header>
   <main><div class="wrap" id="view"><div class="card empty"><p class="note">旅行データを読み込んでいます…</p></div></div></main>
@@ -1454,7 +1470,12 @@ function selectTrip(id){
 
 var VIEWS={home:vHome,itinerary:vItinerary,map:vMap,packing:vPacking,calendar:vCalendar};
 function cur(){var h=location.hash.slice(1);if(h==='trips')return 'home';if(h==='memories')return 'calendar';return VIEWS[h]?h:'home'}
+var splashT0=Date.now(),splashGone=false;
+function hideSplash(){if(splashGone)return;splashGone=true;var el=document.getElementById('splash');if(!el)return;
+  setTimeout(function(){el.classList.add('out');setTimeout(function(){el.remove()},520)},Math.max(0,1100-(Date.now()-splashT0)))}
+setTimeout(hideSplash,4500);
 function render(){
+  if(S.status!=='loading')hideSplash();
   var v=cur();
   if(S.status==='nodb'){headPlain('Our Trips','旅行アプリ');view.innerHTML='<div class="card empty"><strong>旅行データを読み込めません</strong><p class="note">データの保存先の設定が見つかりません。管理者に連絡してください。</p></div>';fab.hidden=true;return}
   if(S.status==='loading'&&!S.trips.length){view.innerHTML='<div class="card empty"><p class="note">旅行データを読み込んでいます…</p></div>';return}
