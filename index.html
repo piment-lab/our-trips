@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-8">
+<meta name="durip-build" content="2026-11-05-9">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -794,6 +794,7 @@ function vItinerary(){
   view.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){itemSheet(null,days[+b.dataset.add])}});
   gtBind();
   var gb=document.getElementById('geo');if(gb)gb.onclick=function(){gb.disabled=true;gb.textContent='位置を調べています…';geocode(miss)};
+  if(S.canWrite&&!autoMv[S.tid]){autoMv[S.tid]=1;setTimeout(autoMoves,900)}
   setActive(spyIndex(),true);
 }
 /* ---- Google Tasks style to-do list ---- */
@@ -1223,6 +1224,39 @@ function drawMap(stops){
     L.marker([p.lat,p.lng],{icon:L.divIcon({className:'pinm'+(last?' last':''),html:'<span>'+(stops.indexOf(p)+1)+'</span>',iconSize:[30,30],iconAnchor:[15,15]})}).addTo(chart).bindTooltip(p.title,{direction:'top',offset:[0,-14]})});
   if(ll.length===1)chart.setView(ll[0],14);else chart.fitBounds(ll,{padding:[36,36]});
   mapHost=el;mapSig=sig;
+}
+var autoMv={},autoBusy=false;
+async function geoOne(it){
+  var t=trip(),qs=[it.place,it.place+' '+((t&&t.place)||'').replace(/[（(].*?[）)]/g,'')];
+  for(var k=0;k<qs.length;k++){
+    try{var r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ja&q='+encodeURIComponent(qs[k]));var a=await r.json();
+      if(a&&a[0]){var v={lat:+a[0].lat,lng:+a[0].lon};await col('items').doc(it.id).update(v);it.lat=v.lat;it.lng=v.lng;return true}}catch(e){}
+    await new Promise(function(z){setTimeout(z,1100)});
+  }
+  return false;
+}
+/* fill rough travel times between consecutive stops that have none yet */
+async function autoMoves(){
+  if(autoBusy)return;autoBusy=true;var tid=S.tid,n=0;
+  try{
+    var days=daysOf(trip());
+    for(var d=0;d<days.length;d++){
+      var l=itemsOn(days[d]),pv=null;
+      for(var i=0;i<l.length;i++){var it=l[i];if(S.tid!==tid)return;
+        if(!it.place)continue;
+        if(pv&&!it.move&&!it.moveBy&&pv.place!==it.place){
+          if(typeof pv.lat!=='number')await geoOne(pv);
+          if(typeof it.lat!=='number')await geoOne(it);
+          if(typeof pv.lat==='number'&&typeof it.lat==='number'){
+            var r=await roadRoute([[pv.lat,pv.lng],[it.lat,it.lng]]);
+            if(r&&r.sec>0){var m=Math.max(1,Math.round(r.sec/600)*10||Math.round(r.sec/60));await col('items').doc(it.id).update({moveBy:'car',move:fmtMin(m),moveMin:m,moveAuto:true});n++}
+          }
+        }
+        pv=it;
+      }
+    }
+    if(n)toast(n+'か所の移動時間を自動で入れました（目安）');
+  }catch(e){}finally{autoBusy=false}
 }
 async function geocode(list){
   var t=trip(),ok=0;
