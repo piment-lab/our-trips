@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-9">
+<meta name="durip-build" content="2026-11-05-10">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -491,6 +491,14 @@ button.mvb:active{background:var(--soft)}
 .trow.mv.nomv .mvb{color:var(--mute);font-size:13px}
 .trow.mv.nomv .mvi{opacity:.5}
 .mvr{flex:none;font-size:13px;font-weight:700;color:var(--coral);text-decoration:none;padding:12px 4px 12px 10px}
+.stw{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:2px 0 6px}
+.stv{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
+.stn{display:flex;align-items:center;gap:10px}
+.stn b{min-width:6.5em;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
+.stb{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--navy);font-size:20px;cursor:pointer}
+.stq{display:flex;flex-wrap:wrap;gap:8px}
+.stq button{min-height:36px;padding:0 13px;border-radius:999px;border:0;background:var(--soft);color:var(--ink);font-size:13px;font-weight:700;cursor:pointer}
+.stq button[aria-pressed="true"]{background:var(--navy);color:#fff}
 .mvh{display:flex;flex-direction:column;gap:4px;padding:8px 4px 14px}
 .mvh b{font-size:24px}.mvh span{font-size:13px;color:var(--sub)}
 .mvmodes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
@@ -766,8 +774,8 @@ function vItinerary(){
           (S.canWrite?'</button>':'</span>')+(ru?'<a class="mvr" href="'+ru+'" target="_blank" rel="noopener">経路</a>':'')+'</div></div>';
       }
       var num=r.place?++n:0,op=S.open===r.id;
-      h+='<div class="trow"><div class="tt">'+esc(r.time||'')+'</div><div class="tcol"><span class="tn'+(num?'':' s')+'">'+(num||'')+'</span></div><div class="tc">'+
-        '<div class="tcard"><button class="tmain" data-open="'+esc(r.id)+'" aria-expanded="'+op+'"><span class="ico">'+ic(r.icon)+'</span><span class="txt"><span class="t1">'+esc(r.title)+'</span>'+(r.stay?'<span class="stay">滞在 '+esc(r.stay)+'</span>':'')+(r.sub?'<span class="t2">'+esc(r.sub)+'</span>':'')+(r.place?'<span class="addr">'+esc(r.place)+'</span>':'')+'</span></button>'+
+      h+='<div class="trow"><div class="tt">'+esc(String(r.time||'').split('\n')[0].replace(/\s*[–-]\s*\d{1,2}:\d{2}$/,''))+'</div><div class="tcol"><span class="tn'+(num?'':' s')+'">'+(num||'')+'</span></div><div class="tc">'+
+        '<div class="tcard"><button class="tmain" data-open="'+esc(r.id)+'" aria-expanded="'+op+'"><span class="ico">'+ic(r.icon)+'</span><span class="txt"><span class="t1">'+esc(r.title)+'</span>'+(stayOf(r)?'<span class="stay">滞在 '+esc(fmtMin(stayOf(r)))+'</span>':'')+(r.sub?'<span class="t2">'+esc(r.sub)+'</span>':'')+(r.place?'<span class="addr">'+esc(r.place)+'</span>':'')+'</span></button>'+
         (S.canWrite?'<span class="grip" title="ドラッグで並べ替え" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>':'')+
         (S.canWrite?'<button class="more" data-edit="'+esc(r.id)+'" aria-label="'+esc(r.title)+'を編集"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>':'')+'</div>'+
         (op?'<div class="detail" style="margin-bottom:6px">'+(r.note?'<span style="white-space:pre-line">'+esc(r.note)+'</span>':'')+(r.place?'<a class="link" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(r.place)+'" target="_blank" rel="noopener">Googleマップで開く</a>':'')+(!r.note&&!r.place?'<span class="note">メモはありません。</span>':'')+'</div>':'')+
@@ -1135,10 +1143,11 @@ async function reorder(date,from,to){
   pending=false;render();
   try{await Promise.all(ch.map(function(x){return col('items').doc(x.id).update({order:x.order})}))}catch(e){fail(e)}
 }
+function stayOf(r){if(!r)return 0;if(r.stayMin)return r.stayMin;var m=durMin(r.stay);if(m)return m;var t=String(r.time||''),a=/^(\d{1,2}):(\d{2})/.exec(t),e=/[–-]\s*(\d{1,2}):(\d{2})/.exec(t);if(a&&e){var x=(+e[1])*60+(+e[2])-((+a[1])*60+(+a[2]));return x>0?x:0}return 0}
 function durMin(t){t=String(t||'');var h=/(\d+(?:\.\d+)?)\s*時間/.exec(t),m=/(\d+)\s*分/.exec(t);if(!h&&!m)return 0;return Math.round((h?parseFloat(h[1])*60:0)+(m?+m[1]:0))}
 function fmtMin(n){n=Math.round(n||0);if(n<=0)return '';var h=Math.floor(n/60),m=n%60;return (h?h+'時間':'')+(m?m+'分':'')}
-function depTime(p){if(!p||!p.time)return '';var t=String(p.time),e=/[–-]\s*(\d{1,2}:\d{2})/.exec(t);if(e)return e[1];
-  var s=/^(\d{1,2}):(\d{2})/.exec(t),st=durMin(p.stay);if(s&&st){var x=(+s[1])*60+(+s[2])+st;return Math.floor(x/60)%24+':'+('0'+x%60).slice(-2)}return ''}
+function depTime(p){if(!p||!p.time)return '';var t=String(p.time);
+  var s=/^(\d{1,2}):(\d{2})/.exec(t),st=stayOf(p);if(s&&st){var x=(+s[1])*60+(+s[2])+st;return Math.floor(x/60)%24+':'+('0'+x%60).slice(-2)}return ''}
 function moveSheet(it,pv){
   var mode=it.moveBy||'car',min=durMin(it.move);
   var h='<div class="ttw"><div class="tt-top"><button type="button" class="tt-x" data-close aria-label="閉じる">'+TI.x+'</button><button type="button" class="tt-save" id="mv_s">保存</button></div>'+
@@ -1640,19 +1649,22 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheetRoot.i
 
 function itemSheet(it,date){
   var t=trip(),days=daysOf(t),icon=(it&&it.icon)||'pin',tp=parseTime(it&&it.time);
+  var stay=it?stayOf(it):0;
   var hasT=!!tp.s,opt={sub:!!(it&&it.sub),stay:!!(it&&it.stay),move:!!(it&&(it.moveBy||it.move)),icon:false,note:!!(it&&it.note)};
   var acc=function(key,inner,open){return '<div class="tt-acc'+(open?' open':'')+'" data-acc="'+key+'"><div class="tt-acc-in">'+inner+'</div></div>'};
   var f='<div class="tt-row"><span class="tt-i">'+TI.day+'</span><span class="tt-l">日にち</span><select class="tt-pill" id="it_date" aria-label="日にち">'+days.map(function(d,i){return '<option value="'+d+'"'+(d===((it&&it.date)||date)?' selected':'')+'>'+(i+1)+'日目 '+(D(d).getMonth()+1)+'/'+D(d).getDate()+'（'+WD[D(d).getDay()]+'）</option>'}).join('')+'</select></div>'+
     '<div class="tt-row"><span class="tt-i">'+TI.day.replace('<path d="M12 7v5l3 2"/>','<path d="M12 7v5l3 2"/>')+'</span><label class="tt-l" for="it_hast">時間を決める</label><input type="checkbox" role="switch" class="tgl" id="it_hast"'+(hasT?' checked':'')+'></div>'+
-    acc('time','<div class="tt-row sub" style="border-bottom:1px solid var(--line)"><span class="tt-l">時刻</span><span class="tt-dt"><input type="time" class="tt-pill tm" id="it_ts" value="'+(tp.s||'09:00')+'" aria-label="開始時刻"><span aria-hidden="true" style="color:var(--sub)">〜</span><input type="time" class="tt-pill tm" id="it_te" value="'+tp.e+'" aria-label="終了時刻（なくても可）"></span></div>',hasT)+
+    acc('time','<div class="tt-row sub" style="border-bottom:1px solid var(--line)"><span class="tt-l">開始時刻</span><span class="tt-dt"><input type="time" class="tt-pill tm" id="it_ts" value="'+(tp.s||'09:00')+'" aria-label="開始時刻"></span></div>',hasT)+
+    '<div class="tt-row top"><span class="tt-i" style="padding-top:10px">'+TI.day+'</span><div class="stw"><div class="stv"><span class="tt-l">滞在時間</span><span class="stn"><button type="button" class="stb" data-sd="-15" aria-label="15分減らす">−</button><b id="it_stv"></b><button type="button" class="stb" data-sd="15" aria-label="15分増やす">＋</button></span></div>'+
+      '<div class="stq">'+[30,60,90,120,180,240].map(function(m){return '<button type="button" data-sq="'+m+'">'+fmtMin(m)+'</button>'}).join('')+'<button type="button" data-sq="0">なし</button></div></div></div>'+
     '<div class="tt-row"><span class="tt-i">'+TI.pin+'</span><input class="tt-in" id="it_place" placeholder="場所を追加（地図に表示されます）" value="'+esc(it?it.place:'')+'" autocomplete="off"></div>'+
     acc('sub','<div class="tt-row"><span class="tt-i">'+TI.memo+'</span><input class="tt-in" id="it_sub" placeholder="ひとこと（例：入国審査のあとソウル駅へ）" value="'+esc(it?it.sub:'')+'"></div>',opt.sub)+
-    acc('stay','<div class="tt-row"><span class="tt-i">'+TI.day+'</span><span class="tt-l" style="flex:none">滞在</span><input class="tt-in" id="it_stay" placeholder="例：1時間" value="'+esc(it&&it.stay||'')+'"></div>',opt.stay)+
+
     acc('move','<div class="tt-row"><span class="tt-i">'+ic('car')+'</span><select class="tt-pill" id="it_moveby" aria-label="前の予定からの移動手段">'+Object.keys(MOVE).map(function(k){return '<option value="'+k+'"'+((it&&it.moveBy||'car')===k?' selected':'')+'>'+MOVE[k]+'</option>'}).join('')+'</select><input class="tt-in" id="it_move" placeholder="移動時間（例：2時間35分）" value="'+esc(it&&it.move||'')+'"></div>',opt.move)+
     acc('icon','<div class="tt-pn" style="padding-left:0"><div class="icons" role="group" aria-label="アイコン">'+ICONS.map(function(k){return '<button type="button" data-ic="'+k+'" aria-pressed="'+(k===icon)+'" aria-label="'+I[k][0]+'" title="'+I[k][0]+'">'+ic(k)+'</button>'}).join('')+'</div></div>',opt.icon)+
     acc('note','<div class="tt-row top"><span class="tt-i">'+TI.memo+'</span><textarea class="tt-in" id="it_note" placeholder="メモ（予約番号や注意点など）" rows="3">'+esc(it?it.note:'')+'</textarea></div>',opt.note)+
     '<div class="tt-row top"><span class="tt-i" style="padding-top:8px">'+TI.plus+'</span><div class="tt-chips">'+
-      [['sub','ひとこと',TI.memo],['stay','滞在時間',TI.day],['move','移動',ic('car')],['icon','アイコン','<span class="tt-ic-now">'+ic(icon)+'</span>'],['note','メモ',TI.memo]].map(function(a){return '<button type="button" class="tt-chip'+(opt[a[0]]?' gone':'')+'" data-add="'+a[0]+'">'+a[2]+a[1]+'</button>'}).join('')+'</div></div>'+
+      [['sub','ひとこと',TI.memo],['move','移動',ic('car')],['icon','アイコン','<span class="tt-ic-now">'+ic(icon)+'</span>'],['note','メモ',TI.memo]].map(function(a){return '<button type="button" class="tt-chip'+(opt[a[0]]?' gone':'')+'" data-add="'+a[0]+'">'+a[2]+a[1]+'</button>'}).join('')+'</div></div>'+
     (it?'<button type="button" class="tt-del" id="it_del">この予定を削除</button>':'');
   var h='<div class="ttw"><div class="tt-top"><button type="button" class="tt-x" data-close aria-label="閉じる">'+TI.x+'</button><button type="button" class="tt-save" id="it_save">保存</button></div>'+
     '<div class="tt-trow"><span class="tt-tic" id="it_icnow">'+ic(icon)+'</span><input class="tt-title" id="it_title" placeholder="予定のタイトル" aria-label="タイトル" autocomplete="off" value="'+esc(it?it.title:'')+'"></div>'+
@@ -1662,6 +1674,9 @@ function itemSheet(it,date){
     var g=function(id){return document.getElementById(id)},root=sheetRoot;
     var setAcc=function(k,on){var a=root.querySelector('[data-acc="'+k+'"]');if(a)a.classList.toggle('open',on)};
     g('it_hast').onchange=function(){hasT=this.checked;setAcc('time',hasT)};
+    var stShow=function(){g('it_stv').textContent=stay?fmtMin(stay):'なし';root.querySelectorAll('[data-sq]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.sq===stay)})};stShow();
+    root.querySelectorAll('[data-sd]').forEach(function(b){b.onclick=function(){stay=Math.max(0,stay+(+b.dataset.sd));stShow()}});
+    root.querySelectorAll('[data-sq]').forEach(function(b){b.onclick=function(){stay=+b.dataset.sq;stShow()}});
     root.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){var k=b.dataset.add;opt[k]=true;setAcc(k,true);
       if(k!=='icon')b.classList.add('gone');else{var on=!root.querySelector('[data-acc="icon"]').classList.contains('open');setAcc('icon',!on===false?true:on)}
       var x=g('it_'+(k==='move'?'move':k));if(x&&k!=='icon')setTimeout(function(){x.focus()},200)}});
@@ -1672,11 +1687,10 @@ function itemSheet(it,date){
     g('it_save').onclick=function(){
       var v=function(id){var x=g(id);return x?x.value.trim():''};
       var title=v('it_title');if(!title){toast('タイトルを入力してください');ti.focus();return}
-      var d=v('it_date'),s0=hasT?v('it_ts'):'',e0=hasT?v('it_te'):'';
-      var time=s0?s0+(e0?'\n– '+e0:''):(hasT?'':(tp.free&&!tp.s?tp.free:''));
-      if(s0&&e0&&e0<s0){toast('終了時刻は開始時刻より後にしてください');return}
+      var d=v('it_date'),s0=hasT?v('it_ts'):'';
+      var time=s0?s0:(hasT?'':(tp.free&&!tp.s?tp.free:''));
       var order=(it&&it.date===d&&it.time===time)?it.order:placeOrder(d,s0,it&&it.id);
-      var body={date:d,time:time,title:title,sub:v('it_sub'),place:v('it_place'),note:v('it_note'),icon:icon,order:order,stay:v('it_stay'),moveBy:opt.move?v('it_moveby'):'',move:opt.move?v('it_move'):''};
+      var body={date:d,time:time,title:title,sub:v('it_sub'),place:v('it_place'),note:v('it_note'),icon:icon,order:order,stay:fmtMin(stay),stayMin:stay,moveBy:opt.move?v('it_moveby'):'',move:opt.move?v('it_move'):''};
       if(it&&it.place===body.place&&typeof it.lat==='number'){body.lat=it.lat;body.lng=it.lng}
       var ref=it?col('items').doc(it.id):col('items').doc();
       ref.set(body).then(function(){closeSheet();toast('保存しました');S.dayIdx=Math.max(0,days.indexOf(d));if(body.place&&typeof body.lat!=='number')geocode([{id:ref.id,place:body.place}])}).catch(fail);
