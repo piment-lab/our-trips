@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-10">
+<meta name="durip-build" content="2026-11-05-11">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -494,6 +494,7 @@ button.mvb:active{background:var(--soft)}
 .stw{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:2px 0 6px}
 .stv{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
 .stn{display:flex;align-items:center;gap:10px}
+.stsel{font-size:16px;font-weight:700;min-height:44px;padding:0 10px}
 .stn b{min-width:6.5em;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
 .stb{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--navy);font-size:20px;cursor:pointer}
 .stq{display:flex;flex-wrap:wrap;gap:8px}
@@ -1655,7 +1656,7 @@ function itemSheet(it,date){
   var f='<div class="tt-row"><span class="tt-i">'+TI.day+'</span><span class="tt-l">日にち</span><select class="tt-pill" id="it_date" aria-label="日にち">'+days.map(function(d,i){return '<option value="'+d+'"'+(d===((it&&it.date)||date)?' selected':'')+'>'+(i+1)+'日目 '+(D(d).getMonth()+1)+'/'+D(d).getDate()+'（'+WD[D(d).getDay()]+'）</option>'}).join('')+'</select></div>'+
     '<div class="tt-row"><span class="tt-i">'+TI.day.replace('<path d="M12 7v5l3 2"/>','<path d="M12 7v5l3 2"/>')+'</span><label class="tt-l" for="it_hast">時間を決める</label><input type="checkbox" role="switch" class="tgl" id="it_hast"'+(hasT?' checked':'')+'></div>'+
     acc('time','<div class="tt-row sub" style="border-bottom:1px solid var(--line)"><span class="tt-l">開始時刻</span><span class="tt-dt"><input type="time" class="tt-pill tm" id="it_ts" value="'+(tp.s||'09:00')+'" aria-label="開始時刻"></span></div>',hasT)+
-    '<div class="tt-row top"><span class="tt-i" style="padding-top:10px">'+TI.day+'</span><div class="stw"><div class="stv"><span class="tt-l">滞在時間</span><span class="stn"><button type="button" class="stb" data-sd="-15" aria-label="15分減らす">−</button><b id="it_stv"></b><button type="button" class="stb" data-sd="15" aria-label="15分増やす">＋</button></span></div>'+
+    '<div class="tt-row top"><span class="tt-i" style="padding-top:10px">'+TI.day+'</span><div class="stw"><div class="stv"><span class="tt-l">滞在時間</span><span class="stn"><select class="tt-pill stsel" id="it_sh" aria-label="滞在時間（時間）">'+Array.apply(null,{length:13}).map(function(_,i){return '<option value="'+i+'">'+i+'時間</option>'}).join('')+'</select><select class="tt-pill stsel" id="it_sm" aria-label="滞在時間（分）">'+Array.apply(null,{length:12}).map(function(_,i){return '<option value="'+i*5+'">'+i*5+'分</option>'}).join('')+'</select></span></div>'+
       '<div class="stq">'+[30,60,90,120,180,240].map(function(m){return '<button type="button" data-sq="'+m+'">'+fmtMin(m)+'</button>'}).join('')+'<button type="button" data-sq="0">なし</button></div></div></div>'+
     '<div class="tt-row"><span class="tt-i">'+TI.pin+'</span><input class="tt-in" id="it_place" placeholder="場所を追加（地図に表示されます）" value="'+esc(it?it.place:'')+'" autocomplete="off"></div>'+
     acc('sub','<div class="tt-row"><span class="tt-i">'+TI.memo+'</span><input class="tt-in" id="it_sub" placeholder="ひとこと（例：入国審査のあとソウル駅へ）" value="'+esc(it?it.sub:'')+'"></div>',opt.sub)+
@@ -1674,8 +1675,9 @@ function itemSheet(it,date){
     var g=function(id){return document.getElementById(id)},root=sheetRoot;
     var setAcc=function(k,on){var a=root.querySelector('[data-acc="'+k+'"]');if(a)a.classList.toggle('open',on)};
     g('it_hast').onchange=function(){hasT=this.checked;setAcc('time',hasT)};
-    var stShow=function(){g('it_stv').textContent=stay?fmtMin(stay):'なし';root.querySelectorAll('[data-sq]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.sq===stay)})};stShow();
-    root.querySelectorAll('[data-sd]').forEach(function(b){b.onclick=function(){stay=Math.max(0,stay+(+b.dataset.sd));stShow()}});
+    var sh=g('it_sh'),sm=g('it_sm');
+    var stShow=function(){var hh=Math.min(12,Math.floor(stay/60)),mm=Math.round((stay-hh*60)/5)*5;if(mm>55)mm=55;sh.value=hh;sm.value=mm;root.querySelectorAll('[data-sq]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.sq===stay)})};stShow();
+    var stPick=function(){stay=(+sh.value)*60+(+sm.value);stShow()};sh.onchange=stPick;sm.onchange=stPick;
     root.querySelectorAll('[data-sq]').forEach(function(b){b.onclick=function(){stay=+b.dataset.sq;stShow()}});
     root.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){var k=b.dataset.add;opt[k]=true;setAcc(k,true);
       if(k!=='icon')b.classList.add('gone');else{var on=!root.querySelector('[data-acc="icon"]').classList.contains('open');setAcc('icon',!on===false?true:on)}
