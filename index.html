@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-19">
+<meta name="durip-build" content="2026-11-05-20">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -353,8 +353,10 @@ textarea.tt-in{resize:vertical;line-height:1.6;padding-top:0}
 @keyframes tdinR{from{opacity:0;transform:translateX(60%)}}@keyframes tdinL{from{opacity:0;transform:translateX(-60%)}}
 .tddots{display:flex;justify-content:center;gap:6px;padding:10px 0}
 .tddots i{width:6px;height:6px;border-radius:50%;background:#c9d4e2}.tddots i.on{background:var(--navy);width:16px;border-radius:3px}
-.tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.tool{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:84px;padding:10px 4px;border:0;border-radius:16px;background:var(--card);box-shadow:0 1px 4px rgba(18,40,77,.07);color:var(--ink);cursor:pointer;justify-content:center}
+.tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.bk-cat{font-size:11px;font-weight:700;color:var(--navy);background:var(--pill);padding:3px 8px;border-radius:999px}
+.bk-memo{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tool{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:84px;padding:10px 2px;border:0;border-radius:16px;background:var(--card);box-shadow:0 1px 4px rgba(18,40,77,.07);color:var(--ink);cursor:pointer;justify-content:center}
 .tool-i{width:38px;height:38px;border-radius:12px;background:var(--soft);color:var(--navy);display:flex;align-items:center;justify-content:center}
 .tool-i svg{width:22px;height:22px}
 .tool-n{font-size:13px;font-weight:700}
@@ -842,19 +844,20 @@ var TL={
  yen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 4l6 8 6-8M12 12v8M8 13h8M8 16.5h8"/></svg>',
  pdf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M12 11v6M9.5 14.5L12 17l2.5-2.5"/></svg>',
  clip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 11l-8.5 8.5a5 5 0 0 1-7-7L14 4a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L15 7"/></svg>',
+ spot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z"/><path d="M12 6.5l1.1 2.2 2.4.4-1.7 1.7.4 2.4-2.2-1.1-2.2 1.1.4-2.4-1.7-1.7 2.4-.4z" fill="currentColor" stroke="none"/></svg>',
  star:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>'
 };
 var CUR={JPY:'¥',KRW:'₩',USD:'$'};
 function money(n,c){n=+n||0;return (CUR[c||'JPY']||'')+n.toLocaleString('ja-JP')}
 function toolsHtml(){
-  return '<div class="tools">'+[['flight','航空券',TL.plane],['hotel','ホテル',TL.hotel],['cost','旅費',TL.yen],['pdf','PDF',TL.pdf]].map(function(a){
-    var n=a[0]==='flight'||a[0]==='hotel'?S.bk.filter(function(b){return b.kind===a[0]}).length:a[0]==='cost'?S.costs.length:0;
-    var conf=a[0]==='flight'||a[0]==='hotel'?S.bk.filter(function(b){return b.kind===a[0]&&b.status==='ok'}).length:0;
+  return '<div class="tools">'+[['flight','航空券',TL.plane],['hotel','ホテル',TL.hotel],['spot','行きたい',TL.spot],['cost','旅費',TL.yen],['pdf','PDF',TL.pdf]].map(function(a){
+    var n=a[0]==='flight'||a[0]==='hotel'||a[0]==='spot'?S.bk.filter(function(b){return b.kind===a[0]}).length:a[0]==='cost'?S.costs.length:0;
+    var conf=a[0]==='flight'||a[0]==='hotel'||a[0]==='spot'?S.bk.filter(function(b){return b.kind===a[0]&&b.status==='ok'}).length:0;
     return '<button type="button" class="tool" data-tool="'+a[0]+'"><span class="tool-i">'+a[2]+'</span><span class="tool-n">'+a[1]+'</span>'+
-      (a[0]==='cost'&&S.costs.length?'<span class="tool-s">'+costTotalLabel()+'</span>':conf?'<span class="tool-s ok">確定 '+conf+'</span>':n?'<span class="tool-s">候補 '+n+'</span>':'')+'</button>'}).join('')+'</div>';
+      (a[0]==='cost'&&S.costs.length?'<span class="tool-s">'+costTotalLabel()+'</span>':conf?'<span class="tool-s ok">'+(a[0]==='spot'?'決定 ':'確定 ')+conf+'</span>':n?'<span class="tool-s">候補 '+n+'</span>':'')+'</button>'}).join('')+'</div>';
 }
 function toolsBind(){view.querySelectorAll('[data-tool]').forEach(function(b){b.onclick=function(){var k=b.dataset.tool;
-  if(k==='flight'||k==='hotel')bookSheet(k);else if(k==='cost')costSheet();else printTrip()}})}
+  if(k==='flight'||k==='hotel'||k==='spot')bookSheet(k);else if(k==='cost')costSheet();else printTrip()}})}
 
 /* ---------- attachments (stored in the database, images shrunk) ---------- */
 function shrinkImg(file){return new Promise(function(res,rej){var r=new FileReader();r.onerror=rej;r.onload=function(){var img=new Image();img.onerror=rej;img.onload=function(){
@@ -877,13 +880,18 @@ function openFile(x){
 
 /* ---------- bookings ---------- */
 var bkMap=null;
-function bkLabel(k){return k==='flight'?'航空券':'ホテル'}
+function bkLabel(k){return k==='flight'?'航空券':k==='spot'?'行きたい候補地':'ホテル'}
+var SPCAT=[['play','観光',ic('cam')],['food','ご飯',ic('food')],['cafe','カフェ',ic('cup')],['shop','買い物',ic('shop')],['bath','温泉・スパ',ic('bath')],['etc','その他',ic('pin')]];
+function spCat(k){return SPCAT.filter(function(c){return c[0]===k})[0]||SPCAT[5]}
 function stars(n){n=+n||0;if(!n)return '';return '<span class="stars" aria-label="評価'+n+'">'+TL.star+'<b>'+n.toFixed(1)+'</b></span>'}
 function bkCard(b){
   var ok=b.status==='ok';
   if(b.kind==='flight')return '<button type="button" class="bk'+(ok?' ok':'')+'" data-bk="'+esc(b.id)+'"><span class="bk-st">'+(ok?'確定':'候補')+'</span>'+
     '<span class="bk-fl"><span class="bk-ap"><b>'+esc(b.from||'出発')+'</b><small>'+esc((b.dep||'').replace('T',' '))+'</small></span><span class="bk-ar">'+TL.plane+'</span><span class="bk-ap r"><b>'+esc(b.to||'到着')+'</b><small>'+esc((b.arr||'').replace('T',' '))+'</small></span></span>'+
     '<span class="bk-meta">'+esc([b.name,b.code?'予約 '+b.code:''].filter(Boolean).join(' ・ '))+(b.price?' ・ '+money(b.price,b.cur):'')+'</span></button>';
+  if(b.kind==='spot')return '<button type="button" class="bk hotel'+(ok?' ok':'')+'" data-bk="'+esc(b.id)+'">'+(b.img?'<img class="bk-img" alt="" src="'+esc(b.img)+'" loading="lazy" referrerpolicy="no-referrer">':'<span class="bk-img ph">'+spCat(b.cat)[2]+'</span>')+
+    '<span class="bk-tx"><span class="bk-row"><span class="bk-st">'+(ok?'決定':'候補')+'</span><span class="bk-cat">'+spCat(b.cat)[1]+'</span></span><b class="bk-n">'+esc(b.name||'候補地')+'</b>'+
+    '<span class="bk-row">'+stars(b.rating)+(b.area?'<span class="bk-meta">'+esc(b.area)+'</span>':'')+'</span>'+(b.memo?'<span class="bk-meta bk-memo">'+esc(b.memo)+'</span>':'')+'</span></button>';
   return '<button type="button" class="bk hotel'+(ok?' ok':'')+'" data-bk="'+esc(b.id)+'">'+(b.img?'<img class="bk-img" alt="" src="'+esc(b.img)+'" loading="lazy" referrerpolicy="no-referrer">':'<span class="bk-img ph">'+TL.hotel+'</span>')+
     '<span class="bk-tx"><span class="bk-st">'+(ok?'確定':'候補')+'</span><b class="bk-n">'+esc(b.name||'ホテル')+'</b>'+
     '<span class="bk-row">'+stars(b.rating)+(b.price?'<span class="bk-p">'+money(b.price,b.cur)+'<small>'+(b.per==='night'?'/泊':'（合計）')+'</small></span>':'')+'</span>'+
@@ -896,9 +904,9 @@ function bookSheet(kind){
     var l=list(),ok=l.filter(function(b){return b.status==='ok'}),cand=l.filter(function(b){return b.status!=='ok'});
     var h='<div class="ttw"><div class="tt-top"><button type="button" class="tt-x" data-close aria-label="閉じる">'+TI.x+'</button>'+(S.canWrite?'<button type="button" class="tt-save" id="bk_add">＋ 追加</button>':'')+'</div>'+
       '<div class="mvh"><b>'+bkLabel(kind)+'</b><span>'+esc(trip().title)+'</span></div>';
-    if(kind==='hotel')h+='<div class="bkmap" id="bkmap"><p class="note">候補のホテルの場所が、ここに地図で表示されます。</p></div>';
-    if(!l.length)h+='<div class="card empty"><p class="note">'+(kind==='hotel'?'気になるホテルのURLを貼るだけで、名前や写真をまとめて候補に追加できます。':'候補の便や、予約が確定した便を入れておけます。QRコードの画像やPDFも添付できます。')+'</p></div>';
-    if(ok.length)h+='<h3 class="bk-h">確定</h3>'+ok.map(bkCard).join('');
+    if(kind==='hotel'||kind==='spot')h+='<div class="bkmap" id="bkmap"><p class="note">'+(kind==='spot'?'行きたい場所の位置が、ここに地図で表示されます。':'候補のホテルの場所が、ここに地図で表示されます。')+'</p></div>';
+    if(!l.length)h+='<div class="card empty"><p class="note">'+(kind==='spot'?'行ってみたいお店や観光地を入れておけます。URLを貼ると名前や写真をまとめて読み込みます。':kind==='hotel'?'気になるホテルのURLを貼るだけで、名前や写真をまとめて候補に追加できます。':'候補の便や、予約が確定した便を入れておけます。QRコードの画像やPDFも添付できます。')+'</p></div>';
+    if(ok.length)h+='<h3 class="bk-h">'+(kind==='spot'?'行く！':'確定')+'</h3>'+ok.map(bkCard).join('');
     if(cand.length){h+='<h3 class="bk-h">候補 <span class="note">'+cand.length+'件</span></h3>';
       if(kind==='hotel'&&cand.length>1)h+=cmpTable(cand);
       h+=cand.map(bkCard).join('')}
@@ -909,7 +917,7 @@ function bookSheet(kind){
     var bind=function(){
       var a=document.getElementById('bk_add');if(a)a.onclick=function(){bookEdit(kind,null)};
       sheetRoot.querySelectorAll('[data-bk]').forEach(function(b){b.onclick=function(){var x=S.bk.filter(function(y){return y.id===b.dataset.bk})[0];if(x)bookEdit(kind,x)}});
-      if(kind==='hotel')drawBkMap();
+      if(kind==='hotel'||kind==='spot')drawBkMap(kind);
     };
     bind();
   });
@@ -923,16 +931,16 @@ function cmpTable(l){
     '<tr><th scope="row">メモ</th>'+l.map(function(b){return '<td>'+esc((b.memo||'—').slice(0,40))+'</td>'}).join('')+'</tr>'+
     '</tbody></table></div>';
 }
-function drawBkMap(){
+function drawBkMap(kind){kind=kind||'hotel';
   var el=document.getElementById('bkmap');if(!el)return;if(bkMap){try{bkMap.remove()}catch(e){}bkMap=null}
-  var pts=S.bk.filter(function(b){return b.kind==='hotel'&&typeof b.lat==='number'});
+  var pts=S.bk.filter(function(b){return b.kind===kind&&typeof b.lat==='number'});
   if(!pts.length||!window.L)return;
   el.innerHTML='';el.classList.add('on');
   bkMap=L.map(el,{zoomControl:false,scrollWheelZoom:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(bkMap);
   var ll=[];
   pts.forEach(function(b){ll.push([b.lat,b.lng]);
-    var m=L.marker([b.lat,b.lng],{icon:L.divIcon({className:'hpin'+(b.status==='ok'?' ok':''),html:'<span>'+(b.price?money(b.price,b.cur):esc((b.name||'').slice(0,6)))+'</span>',iconSize:null,iconAnchor:[0,0]})}).addTo(bkMap);
+    var m=L.marker([b.lat,b.lng],{icon:L.divIcon({className:'hpin'+(b.status==='ok'?' ok':''),html:'<span>'+(kind==='spot'?esc((b.name||'').slice(0,8)):b.price?money(b.price,b.cur):esc((b.name||'').slice(0,6)))+'</span>',iconSize:null,iconAnchor:[0,0]})}).addTo(bkMap);
     m.bindPopup('<div class="hpop">'+(b.img?'<img alt="" src="'+esc(b.img)+'" referrerpolicy="no-referrer">':'')+'<b>'+esc(b.name||'ホテル')+'</b><div>'+(b.rating?'★'+(+b.rating).toFixed(1)+' ':'')+(b.price?money(b.price,b.cur)+(b.per==='night'?'/泊':''):'')+'</div>'+
       '<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((b.name||'')+' '+(b.addr||b.area||''))+'" target="_blank" rel="noopener">Googleマップで最新の評価・料金を見る</a>'+
       (b.url?'<a href="'+esc(b.url)+'" target="_blank" rel="noopener">予約ページを開く</a>':'')+'</div>',{maxWidth:240});
@@ -947,8 +955,15 @@ function bookEdit(kind,x){
   var isNew=!x.id,id=x.id||col('bookings').doc().id;
   var f=function(lab,key,ph,type){return '<div class="tt-row"><label class="tt-l bkl" for="bk_'+key+'">'+lab+'</label><input class="tt-in" id="bk_'+key+'" '+(type?'type="'+type+'" ':'')+'placeholder="'+esc(ph||'')+'" value="'+esc(x[key]||'')+'"></div>'};
   var h='<div class="ttw"><div class="tt-top"><button type="button" class="tt-x" data-close aria-label="閉じる">'+TI.x+'</button>'+(S.canWrite?'<button type="button" class="tt-save" id="bk_s">保存</button>':'')+'</div>'+
-    '<div class="seg2" role="group" aria-label="状態"><button type="button" data-st="cand" aria-pressed="'+(x.status!=='ok')+'">候補</button><button type="button" data-st="ok" aria-pressed="'+(x.status==='ok')+'">確定</button></div>';
-  if(kind==='hotel'){
+    '<div class="seg2" role="group" aria-label="状態"><button type="button" data-st="cand" aria-pressed="'+(x.status!=='ok')+'">候補</button><button type="button" data-st="ok" aria-pressed="'+(x.status==='ok')+'">'+(kind==='spot'?'行く！':'確定')+'</button></div>';
+  if(kind==='spot'){
+    var cat=x.cat||'play';
+    h+='<div class="urlrow"><input class="in" id="bk_url" type="url" placeholder="お店や観光地のURLを貼り付け（任意）" value="'+esc(x.url||'')+'"><button type="button" class="btn" id="bk_fetch">読み込む</button></div>'+
+      '<div id="bk_prev">'+(x.img?'<img class="bk-hero" alt="" src="'+esc(x.img)+'" referrerpolicy="no-referrer">':'')+'</div>'+
+      f('名前','name','例：広蔵市場')+f('住所・場所','addr','住所や地名（地図に表示）')+f('エリア','area','例：鍾路')+
+      '<div class="mvmodes cats" role="group" aria-label="分類">'+SPCAT.map(function(k){return '<button type="button" data-spc="'+k[0]+'" aria-pressed="'+(k[0]===cat)+'">'+k[2]+'<span>'+k[1]+'</span></button>'}).join('')+'</div>'+
+      '<div class="tt-row"><span class="tt-l bkl">行きたい度</span><span class="rate" role="group" aria-label="行きたい度">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-rt="'+n+'" aria-label="'+n+'">'+TL.star+'</button>'}).join('')+'<input class="tt-in" id="bk_rating" inputmode="decimal" placeholder="" value="'+esc(x.rating||'')+'" style="max-width:4em" aria-label="行きたい度"></span></div>';
+  }else if(kind==='hotel'){
     h+='<div class="urlrow"><input class="in" id="bk_url" type="url" placeholder="ホテルのURLを貼り付け（楽天・Booking.comなど）" value="'+esc(x.url||'')+'"><button type="button" class="btn" id="bk_fetch">読み込む</button></div>'+
       '<div id="bk_prev">'+(x.img?'<img class="bk-hero" alt="" src="'+esc(x.img)+'" referrerpolicy="no-referrer">':'')+'</div>'+
       f('名前','name','ホテル名')+f('住所・エリア','addr','住所（地図に表示）')+f('エリア','area','例：明洞')+
@@ -966,14 +981,24 @@ function bookEdit(kind,x){
   h+='<div class="tt-row top"><span class="tt-i">'+TI.memo+'</span><textarea class="tt-in" id="bk_memo" rows="2" placeholder="メモ">'+esc(x.memo||'')+'</textarea></div>'+
     '<div class="tt-row top"><span class="tt-i" style="padding-top:6px">'+TL.clip+'</span><div class="att"><div class="att-l" id="bk_files"><span class="note">読み込み中…</span></div>'+
     (S.canWrite?'<label class="btn line att-add" for="bk_up">QRコード・写真・PDFを添付<input type="file" id="bk_up" accept="image/*,application/pdf" multiple></label>':'')+'</div></div>'+
-    (!isNew&&S.canWrite?'<button type="button" class="tt-del" id="bk_del">この'+(kind==='hotel'?'ホテル':'便')+'を削除</button>':'')+'</div>';
+    (kind==='spot'&&S.canWrite?'<button type="button" class="btn line" id="bk_plan" style="margin-top:14px">旅程に追加する</button>':'')+
+    (!isNew&&S.canWrite?'<button type="button" class="tt-del" id="bk_del">この'+(kind==='hotel'?'ホテル':kind==='spot'?'候補地':'便')+'を削除</button>':'')+'</div>';
   openSheet(h,function(){
     sheetRoot.querySelector('.sheet').classList.add('full');
     var g=function(k){return document.getElementById('bk_'+k)},st=x.status||'cand';
     sheetRoot.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){st=b.dataset.st;sheetRoot.querySelectorAll('[data-st]').forEach(function(y){y.setAttribute('aria-pressed',y===b)})}});
     var paintRate=function(){var v=+g('rating').value||0;sheetRoot.querySelectorAll('[data-rt]').forEach(function(b){b.classList.toggle('on',+b.dataset.rt<=Math.round(v))})};
     if(g('rating')){paintRate();g('rating').oninput=paintRate;sheetRoot.querySelectorAll('[data-rt]').forEach(function(b){b.onclick=function(){g('rating').value=b.dataset.rt+'.0';paintRate()}})}
-    var img=x.img||'';
+    var img=x.img||'',spc=x.cat||'play';
+    sheetRoot.querySelectorAll('[data-spc]').forEach(function(b){b.onclick=function(){spc=b.dataset.spc;sheetRoot.querySelectorAll('[data-spc]').forEach(function(y){y.setAttribute('aria-pressed',y===b)})}});
+    var pl=g('plan');if(pl)pl.onclick=function(){var nm=g('name').value.trim();if(!nm){toast('名前を入力してください');return}var days=daysOf(trip());
+      var hh='<h2>旅程に追加</h2><p class="note">「'+esc(nm)+'」をどの日に入れますか？</p><div class="card">'+days.map(function(d,i){return '<button type="button" class="evrow" data-pd="'+d+'"><span class="tn" style="margin:0;flex:none">'+(i+1)+'</span><span class="txt"><span class="t1">'+(i+1)+'日目 ・ '+jp(d)+'</span><span class="t2">予定'+itemsOn(d).length+'件の最後に追加</span></span></button>'}).join('')+'</div><div class="acts"><button class="btn line" data-close>やめる</button><span></span></div>';
+      var addr=g('addr').value.trim(),memo=g('memo').value.trim(),cc=spc;
+      openSheet(hh,function(){sheetRoot.querySelectorAll('[data-pd]').forEach(function(b){b.onclick=function(){var d=b.dataset.pd,mx=0;itemsOn(d).forEach(function(z){mx=Math.max(mx,z.order||0)});
+        var icon={play:'cam',food:'food',cafe:'cup',shop:'shop',bath:'bath'}[cc]||'pin';
+        var body={date:d,time:'',title:nm,sub:'',place:addr||nm,note:memo,icon:icon,order:mx+100,stay:'',moveBy:'',move:''};
+        if(typeof x.lat==='number'&&(addr||nm)===(x.addr||x.name)){body.lat=x.lat;body.lng=x.lng}
+        var ref=col('items').doc();ref.set(body).then(function(){if(x.id)col('bookings').doc(x.id).update({status:'ok'}).catch(function(){});closeSheet();toast((days.indexOf(d)+1)+'日目に追加しました');if(typeof body.lat!=='number')geocode([{id:ref.id,place:body.place}])}).catch(fail)}})})};
     var fb=g('fetch');if(fb)fb.onclick=async function(){var u=g('url').value.trim();if(!/^https?:\/\//.test(u)){toast('https:// から始まるURLを貼り付けてください');return}
       fb.disabled=true;fb.textContent='読み込み中…';
       try{var r=await fetch('https://api.microlink.io/?url='+encodeURIComponent(u));var j=await r.json();var d=j&&j.data;
@@ -999,7 +1024,9 @@ function bookEdit(kind,x){
     var sv=g('s');if(sv)sv.onclick=async function(){
       var v=function(k){var e=g(k);return e?e.value.trim():''};
       var body={kind:kind,status:st,name:v('name'),code:v('code'),url:v('url'),memo:v('memo'),price:+String(v('price')).replace(/[^\d.]/g,'')||0,cur:v('cur')||'JPY'};
-      if(kind==='hotel'){Object.assign(body,{addr:v('addr'),area:v('area'),per:v('per'),rating:Math.min(5,+v('rating')||0),cin:v('cin'),cout:v('cout'),img:img});
+      if(kind==='spot'){Object.assign(body,{addr:v('addr'),area:v('area'),cat:spc,rating:Math.min(5,+v('rating')||0),img:img,price:0});
+        var q2=body.addr||body.name;if(q2&&(q2!==(x.addr||x.name)||typeof x.lat!=='number')){var p2=await geoText(q2+' '+((trip().place||'').replace(/[（(].*?[）)]/g,'')))||await geoText(q2);if(p2){body.lat=p2.lat;body.lng=p2.lng}}else if(typeof x.lat==='number'){body.lat=x.lat;body.lng=x.lng}}
+      else if(kind==='hotel'){Object.assign(body,{addr:v('addr'),area:v('area'),per:v('per'),rating:Math.min(5,+v('rating')||0),cin:v('cin'),cout:v('cout'),img:img});
         var q=body.addr||body.name;if(q&&(q!==(x.addr||x.name)||typeof x.lat!=='number')){var p=await geoText(q)||(body.name&&body.addr?await geoText(body.name):null);if(p){body.lat=p.lat;body.lng=p.lng}}else if(typeof x.lat==='number'){body.lat=x.lat;body.lng=x.lng}}
       else Object.assign(body,{from:v('from'),to:v('to'),dep:v('dep'),arr:v('arr')});
       if(!body.name&&!body.url){toast('名前を入力してください');return}
