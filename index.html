@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-20">
+<meta name="durip-build" content="2026-11-05-21">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -354,6 +354,9 @@ textarea.tt-in{resize:vertical;line-height:1.6;padding-top:0}
 .tddots{display:flex;justify-content:center;gap:6px;padding:10px 0}
 .tddots i{width:6px;height:6px;border-radius:50%;background:#c9d4e2}.tddots i.on{background:var(--navy);width:16px;border-radius:3px}
 .tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.locb{width:100%;min-height:42px;margin:6px 0 4px;border:1.5px dashed #9fb1c9;border-radius:12px;background:transparent;color:var(--navy);font-size:13.5px;font-weight:700;cursor:pointer}
+.locb.found{border-style:solid;border-color:#2e7d5b;color:#2e7d5b}
+.nopin{font-size:11px;color:#c0563f;font-weight:700}
 .bk-cat{font-size:11px;font-weight:700;color:var(--navy);background:var(--pill);padding:3px 8px;border-radius:999px}
 .bk-memo{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tool{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:84px;padding:10px 2px;border:0;border-radius:16px;background:var(--card);box-shadow:0 1px 4px rgba(18,40,77,.07);color:var(--ink);cursor:pointer;justify-content:center}
@@ -895,7 +898,7 @@ function bkCard(b){
   return '<button type="button" class="bk hotel'+(ok?' ok':'')+'" data-bk="'+esc(b.id)+'">'+(b.img?'<img class="bk-img" alt="" src="'+esc(b.img)+'" loading="lazy" referrerpolicy="no-referrer">':'<span class="bk-img ph">'+TL.hotel+'</span>')+
     '<span class="bk-tx"><span class="bk-st">'+(ok?'確定':'候補')+'</span><b class="bk-n">'+esc(b.name||'ホテル')+'</b>'+
     '<span class="bk-row">'+stars(b.rating)+(b.price?'<span class="bk-p">'+money(b.price,b.cur)+'<small>'+(b.per==='night'?'/泊':'（合計）')+'</small></span>':'')+'</span>'+
-    '<span class="bk-meta">'+esc([b.cin&&b.cout?dots(b.cin)+'〜'+dots(b.cout):'',b.area||''].filter(Boolean).join(' ・ '))+'</span></span></button>';
+    '<span class="bk-meta">'+esc([b.cin&&b.cout?dots(b.cin)+'〜'+dots(b.cout):'',b.area||'',b.src||''].filter(Boolean).join(' ・ '))+(typeof b.lat!=='number'?' <span class="nopin">地図に未表示</span>':'')+'</span></span></button>';
 }
 function bookSheet(kind){
   S.openTool='book:'+kind;
@@ -931,7 +934,10 @@ function cmpTable(l){
     '<tr><th scope="row">メモ</th>'+l.map(function(b){return '<td>'+esc((b.memo||'—').slice(0,40))+'</td>'}).join('')+'</tr>'+
     '</tbody></table></div>';
 }
-function drawBkMap(kind){kind=kind||'hotel';
+var bkGeoTried={};
+async function fillBkGeo(kind){var miss=S.bk.filter(function(b){return b.kind===kind&&typeof b.lat!=='number'&&(b.name||b.addr)&&!bkGeoTried[b.id]});
+  for(var i=0;i<miss.length;i++){var b=miss[i];bkGeoTried[b.id]=1;var p=(b.addr?await geoText(b.addr):null)||await geoText(b.name);if(p)try{await col('bookings').doc(b.id).update({lat:p.lat,lng:p.lng})}catch(e){}}}
+function drawBkMap(kind){kind=kind||'hotel';if(S.canWrite)fillBkGeo(kind);
   var el=document.getElementById('bkmap');if(!el)return;if(bkMap){try{bkMap.remove()}catch(e){}bkMap=null}
   var pts=S.bk.filter(function(b){return b.kind===kind&&typeof b.lat==='number'});
   if(!pts.length||!window.L)return;
@@ -948,7 +954,38 @@ function drawBkMap(kind){kind=kind||'hotel';
   if(ll.length===1)bkMap.setView(ll[0],14);else bkMap.fitBounds(ll,{padding:[40,40]});
   setTimeout(function(){if(bkMap)bkMap.invalidateSize()},350);
 }
-async function geoText(q){try{var r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ja&q='+encodeURIComponent(q));var a=await r.json();if(a&&a[0])return {lat:+a[0].lat,lng:+a[0].lon}}catch(e){}return null}
+function tripCenter(){var p=null;S.items.concat(S.bk).forEach(function(x){if(!p&&typeof x.lat==='number')p={lat:x.lat,lng:x.lng}});return p}
+async function geoText(q,near){
+  q=String(q||'').trim();if(!q)return null;
+  var t=trip(),city=((t&&t.place)||'').replace(/[（(].*?[）)]/g,'').trim(),c=near||tripCenter();
+  var tries=[q,city&&q.indexOf(city)<0?q+' '+city:''].filter(Boolean);
+  for(var k=0;k<tries.length;k++){
+    try{var r=await fetch('https://photon.komoot.io/api/?limit=1&q='+encodeURIComponent(tries[k])+(c?'&lat='+c.lat+'&lon='+c.lng:''));var j=await r.json();
+      var f=j&&j.features&&j.features[0];if(f&&f.geometry)return {lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0],label:(f.properties||{}).name||''}}catch(e){}
+    try{var r2=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ja&q='+encodeURIComponent(tries[k]));var a=await r2.json();if(a&&a[0])return {lat:+a[0].lat,lng:+a[0].lon}}catch(e){}
+  }
+  return null;
+}
+/* read what we can from any booking site's URL itself */
+var AGENTS=[['booking.com','Booking.com'],['agoda','Agoda'],['expedia','Expedia'],['hotels.com','Hotels.com'],['trip.com','Trip.com'],['travel.rakuten','楽天トラベル'],['jalan.net','じゃらん'],['ikyu.com','一休'],['yahoo','Yahoo!トラベル'],['airbnb','Airbnb'],['google.','Googleマップ'],['goo.gl','Googleマップ'],['tripadvisor','トリップアドバイザー'],['yanolja','ヤノルジャ'],['jtb','JTB'],['his-j','HIS'],['knt','近畿日本ツーリスト'],['skyticket','skyticket'],['rurubu','るるぶトラベル'],['hotelscombined','HotelsCombined'],['trivago','trivago'],['marriott','Marriott'],['hilton','Hilton'],['ihg','IHG'],['hyatt','Hyatt'],['accor','Accor'],['apahotel','APAホテル'],['toyoko-inn','東横イン'],['dormy','ドーミーイン']];
+function urlInfo(u){
+  var o={src:'',name:'',lat:null,lng:null};try{var x=new URL(u)}catch(e){return o}
+  var host=x.hostname.toLowerCase(),path=decodeURIComponent(x.pathname);
+  AGENTS.some(function(a){if(host.indexOf(a[0])>=0){o.src=a[1];return true}});if(!o.src)o.src=host.replace(/^www\./,'');
+  var m=/\/maps\/place\/([^/@]+)(?:\/@(-?\d+\.\d+),(-?\d+\.\d+))?/.exec(path);if(m){o.name=m[1].replace(/\+/g,' ');if(m[2]){o.lat=+m[2];o.lng=+m[3]}}
+  var q=x.searchParams.get('q')||x.searchParams.get('query');if(!o.name&&/google|goo\.gl/.test(host)&&q)o.name=q;
+  var at=/@(-?\d+\.\d+),(-?\d+\.\d+)/.exec(x.href);if(at&&o.lat==null){o.lat=+at[1];o.lng=+at[2]}
+  var slug='';
+  if(/booking\.com/.test(host)){m=/\/hotel\/[a-z]{2}\/([^.\/]+)/.exec(path);if(m)slug=m[1]}
+  else if(/agoda/.test(host)){m=/^\/(?:[a-z-]{2,5}\/)?([^/]+)\/hotel\//.exec(path);if(m)slug=m[1]}
+  else if(/expedia/.test(host)){m=/Hotels-(.+?)\.h\d+/.exec(path);if(m)slug=m[1]}
+  else if(/hotels\.com/.test(host)){m=/\/ho\d+\/([^/]+)/.exec(path);if(m)slug=m[1].replace(/-[a-z]+-[a-z]+(-[a-z]+)?$/,'')}
+  else if(/tripadvisor/.test(host)){m=/Reviews-([^-]+(?:_[^-]+)*)-/.exec(path);if(m)slug=m[1].replace(/_/g,' ')}
+  if(slug&&!o.name)o.name=slug.replace(/[-_]+/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()}).trim();
+  return o;
+}
+function cleanTitle(t){return String(t||'').replace(/【[^】]*】/g,' ').split(/\s[|｜–—-]\s|[|｜]|（[^）]*(?:予約|楽天|じゃらん|Booking|Agoda|Expedia)[^）]*）/)[0].trim()
+  .replace(/(の)?(宿泊)?予約(・料金|［[^］]*］)?$/,'').replace(/\s*[\(（](?:更新|最新|\d{4})[^)）]*[\)）]$/,'').replace(/^\s*(Booking\.com|Agoda|Expedia|楽天トラベル|じゃらん)\s*[:：]\s*/i,'').trim()}
 function bookEdit(kind,x){
   S.openTool=null;
   x=x||{kind:kind,status:'cand',cur:kind==='hotel'&&/韓国|ソウル|Korea/i.test((trip().place||'')+trip().title)?'KRW':'JPY',per:'night'};
@@ -960,13 +997,13 @@ function bookEdit(kind,x){
     var cat=x.cat||'play';
     h+='<div class="urlrow"><input class="in" id="bk_url" type="url" placeholder="お店や観光地のURLを貼り付け（任意）" value="'+esc(x.url||'')+'"><button type="button" class="btn" id="bk_fetch">読み込む</button></div>'+
       '<div id="bk_prev">'+(x.img?'<img class="bk-hero" alt="" src="'+esc(x.img)+'" referrerpolicy="no-referrer">':'')+'</div>'+
-      f('名前','name','例：広蔵市場')+f('住所・場所','addr','住所や地名（地図に表示）')+f('エリア','area','例：鍾路')+
+      f('名前','name','例：広蔵市場（名前だけでも地図に出せます）')+f('住所','addr','住所や地名（任意）')+'<button type="button" class="locb" id="bk_locate">名前・住所から地図の位置を探す</button>'+f('エリア','area','例：鍾路')+
       '<div class="mvmodes cats" role="group" aria-label="分類">'+SPCAT.map(function(k){return '<button type="button" data-spc="'+k[0]+'" aria-pressed="'+(k[0]===cat)+'">'+k[2]+'<span>'+k[1]+'</span></button>'}).join('')+'</div>'+
       '<div class="tt-row"><span class="tt-l bkl">行きたい度</span><span class="rate" role="group" aria-label="行きたい度">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-rt="'+n+'" aria-label="'+n+'">'+TL.star+'</button>'}).join('')+'<input class="tt-in" id="bk_rating" inputmode="decimal" placeholder="" value="'+esc(x.rating||'')+'" style="max-width:4em" aria-label="行きたい度"></span></div>';
   }else if(kind==='hotel'){
     h+='<div class="urlrow"><input class="in" id="bk_url" type="url" placeholder="ホテルのURLを貼り付け（楽天・Booking.comなど）" value="'+esc(x.url||'')+'"><button type="button" class="btn" id="bk_fetch">読み込む</button></div>'+
       '<div id="bk_prev">'+(x.img?'<img class="bk-hero" alt="" src="'+esc(x.img)+'" referrerpolicy="no-referrer">':'')+'</div>'+
-      f('名前','name','ホテル名')+f('住所・エリア','addr','住所（地図に表示）')+f('エリア','area','例：明洞')+
+      f('名前','name','ホテル名（名前だけでも地図に出せます）')+f('住所','addr','住所（任意）')+'<button type="button" class="locb" id="bk_locate">名前・住所から地図の位置を探す</button>'+f('エリア','area','例：明洞')+
       '<div class="tt-row"><label class="tt-l bkl" for="bk_price">料金</label><select class="tt-pill" id="bk_cur" aria-label="通貨">'+Object.keys(CUR).map(function(c){return '<option value="'+c+'"'+(c===x.cur?' selected':'')+'>'+CUR[c]+' '+c+'</option>'}).join('')+'</select><input class="tt-in" id="bk_price" inputmode="numeric" placeholder="金額" value="'+esc(x.price||'')+'"><select class="tt-pill" id="bk_per" aria-label="料金の単位"><option value="night"'+(x.per!=='total'?' selected':'')+'>1泊</option><option value="total"'+(x.per==='total'?' selected':'')+'>合計</option></select></div>'+
       '<div class="tt-row"><span class="tt-l bkl">評価</span><span class="rate" role="group" aria-label="評価">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-rt="'+n+'" aria-label="'+n+'">'+TL.star+'</button>'}).join('')+'<input class="tt-in" id="bk_rating" inputmode="decimal" placeholder="例：4.3" value="'+esc(x.rating||'')+'" style="max-width:5em"></span></div>'+
       '<div class="tt-row"><span class="tt-l bkl">日程</span><span class="tt-dt"><input type="date" class="tt-pill" id="bk_cin" value="'+esc(x.cin||trip().start)+'" aria-label="チェックイン"><span>〜</span><input type="date" class="tt-pill" id="bk_cout" value="'+esc(x.cout||trip().end)+'" aria-label="チェックアウト"></span></div>'+
@@ -999,20 +1036,28 @@ function bookEdit(kind,x){
         var body={date:d,time:'',title:nm,sub:'',place:addr||nm,note:memo,icon:icon,order:mx+100,stay:'',moveBy:'',move:''};
         if(typeof x.lat==='number'&&(addr||nm)===(x.addr||x.name)){body.lat=x.lat;body.lng=x.lng}
         var ref=col('items').doc();ref.set(body).then(function(){if(x.id)col('bookings').doc(x.id).update({status:'ok'}).catch(function(){});closeSheet();toast((days.indexOf(d)+1)+'日目に追加しました');if(typeof body.lat!=='number')geocode([{id:ref.id,place:body.place}])}).catch(fail)}})})};
-    var fb=g('fetch');if(fb)fb.onclick=async function(){var u=g('url').value.trim();if(!/^https?:\/\//.test(u)){toast('https:// から始まるURLを貼り付けてください');return}
-      fb.disabled=true;fb.textContent='読み込み中…';
+    var urlLat=null;
+    var fb=g('fetch');if(fb)fb.onclick=async function(){var u=g('url').value.trim();if(!/^https?:\/\//.test(u)){var mm=/https?:\/\/\S+/.exec(u);if(mm){u=mm[0];g('url').value=u}else{toast('URLを貼り付けてください');return}}
+      fb.disabled=true;fb.textContent='読み込み中…';var got=0,ui=urlInfo(u);
+      if(ui.name&&!g('name').value){g('name').value=ui.name;got++}
+      if(ui.lat!=null){urlLat={lat:ui.lat,lng:ui.lng};got++}
+      if(ui.src)x.src=ui.src;
       try{var r=await fetch('https://api.microlink.io/?url='+encodeURIComponent(u));var j=await r.json();var d=j&&j.data;
-        if(j.status!=='success'||!d)throw 0;
-        var t=(d.title||'').split(/[|｜]| - |【/)[0].trim();if(t&&!g('name').value)g('name').value=t;
-        if(d.image&&d.image.url){img=d.image.url;g('prev').innerHTML='<img class="bk-hero" alt="" src="'+esc(img)+'" referrerpolicy="no-referrer">'}
-        var txt=(d.title||'')+' '+(d.description||'');
-        var pm=/(?:[¥￥]|JPY)\s?([\d,]{3,})|([\d,]{3,})\s?円/.exec(txt);if(pm&&!g('price').value){g('price').value=(pm[1]||pm[2]).replace(/,/g,'');g('cur').value='JPY'}
-        var km=/₩\s?([\d,]{4,})|([\d,]{4,})\s?원/.exec(txt);if(km&&!g('price').value){g('price').value=(km[1]||km[2]).replace(/,/g,'');g('cur').value='KRW'}
-        var rm=/(?:評価|★|rating)\s*[:：]?\s*([0-5](?:\.\d)?)/i.exec(txt);if(rm&&!g('rating').value){g('rating').value=rm[1];paintRate()}
-        if(!g('memo').value&&d.description)g('memo').value=d.description.slice(0,120);
-        toast('ページの情報を読み込みました。料金と評価を確認してください');
-      }catch(e){toast('このページからは自動で読み込めませんでした。名前などを手で入力してください')}
-      fb.disabled=false;fb.textContent='読み込む'};
+        if(j.status==='success'&&d){
+          var t=cleanTitle(d.title);if(t&&(!g('name').value||g('name').value===ui.name)&&!/^(access denied|just a moment|attention required|robot|captcha|403|error)/i.test(t)){g('name').value=t;got++}
+          if(d.image&&d.image.url&&!/logo|favicon|sprite/i.test(d.image.url)){img=d.image.url;g('prev').innerHTML='<img class="bk-hero" alt="" src="'+esc(img)+'" referrerpolicy="no-referrer">';got++}
+          var txt=(d.title||'')+' '+(d.description||'');
+          var pm=/(?:[¥￥]|JPY)\s?([\d,]{3,})|([\d,]{3,})\s?円/.exec(txt);if(pm&&g('price')&&!g('price').value){g('price').value=(pm[1]||pm[2]).replace(/,/g,'');g('cur').value='JPY'}
+          var km=/₩\s?([\d,]{4,})|([\d,]{4,})\s?원/.exec(txt);if(km&&g('price')&&!g('price').value){g('price').value=(km[1]||km[2]).replace(/,/g,'');g('cur').value='KRW'}
+          var rm=/(?:評価|★|rating|クチコミ)\s*[:：]?\s*([0-5](?:\.\d)?)(?![\d])/i.exec(txt);if(rm&&!g('rating').value){g('rating').value=rm[1];paintRate()}
+          var rs=/([0-9](?:\.\d)?)\s*\/\s*10/.exec(txt);if(!rm&&rs&&!g('rating').value){g('rating').value=(+rs[1]/2).toFixed(1);paintRate()}
+          if(!g('memo').value&&d.description&&!/^(access denied|just a moment)/i.test(d.description))g('memo').value=d.description.slice(0,140);
+        }}catch(e){}
+      fb.disabled=false;fb.textContent='読み込む';
+      toast(got?(ui.src?ui.src+'から':'')+'読み込みました。料金と評価を確認してください':'このサイトからは読み込めませんでした。名前を入れれば地図には出せます')};
+    var lb=g('locate');if(lb)lb.onclick=async function(){var q=(g('addr').value||'').trim()||(g('name').value||'').trim();if(!q){toast('名前か住所を入れてください');return}
+      lb.disabled=true;lb.textContent='探しています…';var p=await geoText(q);lb.disabled=false;
+      if(p){urlLat=p;lb.textContent='位置が見つかりました'+(p.label?'（'+p.label+'）':'');lb.classList.add('found')}else{lb.textContent='見つかりませんでした。住所や英語名でお試しください'}};
     /* attachments */
     var fileList=[],drawFiles=function(){var el=g('files');if(!el)return;
       el.innerHTML=fileList.length?fileList.map(function(f){return '<span class="att-i"><button type="button" class="att-o" data-fo="'+esc(f.id)+'">'+(/^image/.test(f.type)?'<img alt="" src="'+f.data+'">':'<span class="att-pdf">PDF</span>')+'<small>'+esc(f.name)+'</small></button>'+(S.canWrite?'<button type="button" class="att-x" data-fx="'+esc(f.id)+'" aria-label="'+esc(f.name)+'を削除">×</button>':'')+'</span>'}).join(''):'<span class="note">まだ添付はありません</span>';
@@ -1024,10 +1069,10 @@ function bookEdit(kind,x){
     var sv=g('s');if(sv)sv.onclick=async function(){
       var v=function(k){var e=g(k);return e?e.value.trim():''};
       var body={kind:kind,status:st,name:v('name'),code:v('code'),url:v('url'),memo:v('memo'),price:+String(v('price')).replace(/[^\d.]/g,'')||0,cur:v('cur')||'JPY'};
-      if(kind==='spot'){Object.assign(body,{addr:v('addr'),area:v('area'),cat:spc,rating:Math.min(5,+v('rating')||0),img:img,price:0});
-        var q2=body.addr||body.name;if(q2&&(q2!==(x.addr||x.name)||typeof x.lat!=='number')){var p2=await geoText(q2+' '+((trip().place||'').replace(/[（(].*?[）)]/g,'')))||await geoText(q2);if(p2){body.lat=p2.lat;body.lng=p2.lng}}else if(typeof x.lat==='number'){body.lat=x.lat;body.lng=x.lng}}
+      if(kind==='spot'){Object.assign(body,{addr:v('addr'),area:v('area'),cat:spc,rating:Math.min(5,+v('rating')||0),img:img,price:0,src:x.src||''});
+        var q2=body.addr||body.name;if(urlLat){body.lat=urlLat.lat;body.lng=urlLat.lng}else if(q2&&(q2!==(x.addr||x.name)||typeof x.lat!=='number')){var p2=await geoText(body.addr)||await geoText(body.name);if(p2){body.lat=p2.lat;body.lng=p2.lng}}else if(typeof x.lat==='number'){body.lat=x.lat;body.lng=x.lng}}
       else if(kind==='hotel'){Object.assign(body,{addr:v('addr'),area:v('area'),per:v('per'),rating:Math.min(5,+v('rating')||0),cin:v('cin'),cout:v('cout'),img:img});
-        var q=body.addr||body.name;if(q&&(q!==(x.addr||x.name)||typeof x.lat!=='number')){var p=await geoText(q)||(body.name&&body.addr?await geoText(body.name):null);if(p){body.lat=p.lat;body.lng=p.lng}}else if(typeof x.lat==='number'){body.lat=x.lat;body.lng=x.lng}}
+        body.src=x.src||'';var q=body.addr||body.name;if(urlLat){body.lat=urlLat.lat;body.lng=urlLat.lng}else if(q&&(q!==(x.addr||x.name)||typeof x.lat!=='number')){var p=(body.addr?await geoText(body.addr):null)||await geoText(body.name);if(p){body.lat=p.lat;body.lng=p.lng}}else if(typeof x.lat==='number'){body.lat=x.lat;body.lng=x.lng}}
       else Object.assign(body,{from:v('from'),to:v('to'),dep:v('dep'),arr:v('arr')});
       if(!body.name&&!body.url){toast('名前を入力してください');return}
       col('bookings').doc(id).set(body).then(function(){toast('保存しました');bookSheet(kind)}).catch(fail)};
