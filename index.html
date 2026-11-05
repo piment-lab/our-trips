@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-06-3">
+<meta name="durip-build" content="2026-11-06-4">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -86,7 +86,7 @@ header.sky{position:relative;padding-block:28px 34px;padding-left:max(20px,env(s
 /* fade the app in after the splash */
 .app,nav.tabs{opacity:0;transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1);animation:appsafe .01s 7s forwards}
 .app{transform:translateY(14px)}
-body.shown .app,body.shown nav.tabs{opacity:1;transform:none}
+body.shown .app,body.shown nav.tabs{opacity:1;transform:none;animation:none}
 @keyframes appsafe{to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.app{transform:none}.app,nav.tabs{transition-duration:.2s}}
 /* home: trips as a schedule */
@@ -727,6 +727,9 @@ body.mapfull .tabs{display:none}
 .mv2-t{min-width:0;display:flex;flex-direction:column;gap:2px}
 .mv2-t b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mv2-t small{font-size:11.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.dtabs-ph{height:0}
+.dtabs.pin{position:fixed;z-index:20;box-shadow:0 4px 14px rgba(18,40,77,.14)}
 </style>
 
 <div class="splash" id="splash" role="status" aria-label="Duripを起動しています"><svg class="spl-ic" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#ffffff" fill-opacity=".08"/><path class="spl-trail" d="M96 330 C170 300 230 250 300 200" stroke="#ffffff" stroke-opacity=".45" stroke-width="10" stroke-linecap="round" stroke-dasharray="4 26" fill="none"/><g class="spl-pl"><g transform="translate(300 196) rotate(-38) scale(5.2)"><path d="M-22 0 C-22 -2.6 -19 -3.4 -16 -3.4 L-4 -3.4 L8 -20 L14 -20 L8 -3.4 L19 -3.4 L23.5 -9 L27 -9 L25 0 L27 9 L23.5 9 L19 3.4 L8 3.4 L14 20 L8 20 L-4 3.4 L-16 3.4 C-19 3.4 -22 2.6 -22 0 Z" fill="#ffffff" transform="scale(-1,1)"/></g></g><circle cx="392" cy="112" r="7" fill="#f6c9b8"/></svg><span class="spl-t">Durip</span></div>
@@ -1320,6 +1323,7 @@ function vItinerary(){
   toolsBind();
   if(S.canWrite&&!autoMv[S.tid]){autoMv[S.tid]=1;setTimeout(autoMoves,900)}
   setActive(spyIndex(),true);
+  pinTabs();
 }
 /* ---- Google Tasks style to-do list ---- */
 var GT_CIRCLE='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path class="ck" d="M8 12.5l2.8 2.8L16.5 9.5"/></svg>';
@@ -1596,6 +1600,13 @@ function goSec(i){
   window.addEventListener('scroll',function(){var y=window.scrollY,dy=y-ly;if(Math.abs(dy)<6)return;
     if(dy>0&&y>60&&!sheetRoot.innerHTML)document.body.classList.add('navhide');else if(dy<0||y<=60)document.body.classList.remove('navhide');ly=y},{passive:true});
   window.addEventListener('hashchange',function(){document.body.classList.remove('navhide')});})();
+function pinTabs(){var t=view.querySelector('.dtabs');if(!t)return;var ph=t.previousElementSibling;
+  if(!ph||!ph.classList.contains('dtabs-ph')){ph=document.createElement('div');ph.className='dtabs-ph';t.parentNode.insertBefore(ph,t)}
+  var r=ph.getBoundingClientRect(),top=safeTop();
+  if(r.top<top){if(!t.classList.contains('pin')){ph.style.height=t.offsetHeight+'px';t.classList.add('pin')}t.style.left=r.left+'px';t.style.width=r.width+'px';t.style.top=top+'px'}
+  else if(t.classList.contains('pin')){t.classList.remove('pin');ph.style.height='0';t.style.left=t.style.width=t.style.top=''}}
+window.addEventListener('scroll',function(){if(cur()==='itinerary')pinTabs()},{passive:true});
+window.addEventListener('resize',function(){if(cur()==='itinerary')pinTabs()});
 window.addEventListener('scroll',function(){
   if(spyRaf||cur()!=='itinerary'||drag)return;
   spyRaf=requestAnimationFrame(function(){spyRaf=0;if(Date.now()-spyLock<700)return;setActive(spyIndex())});
