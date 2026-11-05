@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-05-11">
+<meta name="durip-build" content="2026-11-05-12">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -536,6 +536,7 @@ body.nosel{-webkit-user-select:none;user-select:none;cursor:grabbing}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 nav.tabs a{height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--mute);text-decoration:none;font-size:11px}
 nav.tabs a[aria-current="page"]{color:var(--navy);font-weight:700}
+nav.tabs a{white-space:nowrap;letter-spacing:-.02em}
 nav.tabs svg{width:24px;height:24px;position:relative;z-index:1;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 /* tab bar feedback: pill behind the active icon, press shrink, little pop on select */
 nav.tabs a{position:relative;-webkit-tap-highlight-color:transparent;transition:color .2s}
@@ -565,7 +566,7 @@ nav.tabs a.pop svg{animation:tabpop .4s cubic-bezier(.3,1.6,.5,1)}
   <a href="#home" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v10h-6v-6H9v6H3z"/></svg>ホーム</a>
   <a href="#itinerary" data-v="itinerary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="5" cy="6" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="5" cy="18" r="1.5"/><path d="M10 6h10M10 12h10M10 18h10"/></svg>旅程</a>
   <a href="#map" data-v="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>マップ</a>
-  <a href="#packing" data-v="packing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 12l2 2 4-4"/></svg>持ち物</a>
+  <a href="#packing" data-v="packing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 12l2 2 4-4"/></svg>やることリスト</a>
   <a href="#calendar" data-v="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2"/></svg>カレンダー</a>
 </nav>
 <div id="sheetRoot"></div>
