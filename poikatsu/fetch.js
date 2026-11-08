@@ -39,6 +39,14 @@ function pick(t, key) {
       });
       it.hist = Object.keys(best).sort().slice(-150).map(d => [d, best[d][0], best[d][1]]);
     } catch (e) { it.err = e.message; }
+    // 全ポイントサイトの掲載額（横断検索）
+    try {
+      const q = s.title, re = new RegExp('(^|[^\\p{L}\\p{N}])' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'u');
+      const r = await get('https://api.kochalog.com/api/search/?q=' + encodeURIComponent(q) + '&limit=0&unitType=' + (s.unitType || 'fixed'));
+      const best = {};
+      (r.offers || []).forEach(o => { if (!(o.price > 0) || !re.test(o.title || '')) return; const k = o.siteName; if (!best[k] || o.price > best[k].p) best[k] = { s: k, p: o.price, u: o.url || o.topUrl || '', t: o.title }; });
+      it.sites = Object.values(best).sort((a, b) => b.p - a.p);
+    } catch (e) { it.sites = []; it.err2 = e.message; }
     items.push(it); await wait(1200);
   }
   fs.writeFileSync('poikatsu/data.json', JSON.stringify({ updatedAt: up.updatedAt, fetchedAt: new Date().toISOString(), items }));
