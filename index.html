@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-08-poi2">
+<meta name="durip-build" content="2026-11-08-poi3">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -424,6 +424,7 @@ textarea.tt-in{resize:vertical;line-height:1.6;padding-top:0}
 .poi-cn{display:flex;gap:8px;align-items:center;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .poi-cn b{flex:none;width:20px;height:20px;border-radius:50%;background:#eef1f5;color:var(--mute);font-size:11px;display:flex;align-items:center;justify-content:center}
 .poi-c.top .poi-cn b{background:#e8796a;color:#fff}
+.poi-cs{min-width:0;display:flex;flex-direction:column;overflow:hidden}.poi-cs small{font-size:10px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .poi-cb{height:8px;background:#eef1f5;border-radius:4px;overflow:hidden}
 .poi-cb i{display:block;height:100%;background:#c9d6e8;border-radius:4px}
 .poi-c.top .poi-cb i{background:#e8796a}
@@ -2500,7 +2501,7 @@ function poiCalc(it){
   it.hiDays={};h.forEach(function(x){if(x[1]>=it.max*0.98&&x[1]>it.avg*1.03)it.hiDays[x[0]]=x[1]});
 }
 function poiDowLabel(it){var l=it.hiDow;if(!l.length)return '';if(l.length===2&&l.indexOf(0)>=0&&l.indexOf(6)>=0)return '土日が高い';return l.map(function(i){return WD[i]}).join('・')+'曜が高い'}
-function poiYen(n){n=+n||0;return n<100&&n%1?n+'%':n.toLocaleString('ja-JP')+'円'}
+function poiYen(n){n=Math.round(+n||0);return n.toLocaleString('ja-JP')+'円'}
 function poiWatch(){return (S.poiDoc&&S.poiDoc.watch)||null}
 function poiShown(){if(!PD){poiLoad();return[]}var w=poiWatch();return PD.items.filter(function(it){return w?w.indexOf(it.slug)>=0:(it.hiDow.length>0&&it.now>0)})}
 function poiHighOn(it,d){var t=todayS();if(d<t)return !!it.hiDays[d];if(d===t)return it.hot||it.hiDow.indexOf(D(d).getDay())>=0;return it.hiDow.indexOf(D(d).getDay())>=0&&d<=addDays(t,42)}
@@ -2538,7 +2539,7 @@ function poiItem(s){return PD?PD.items.filter(function(x){return x.slug===s})[0]
 function poiNextHigh(it){var t=todayS();for(var k=0;k<28;k++){var d=addDays(t,k);if(poiHighOn(it,d))return d}return ''}
 function poiSheet(s){var it=poiItem(s);if(!it)return;
   var mx=Math.max.apply(null,it.dow.concat([1])),nx=poiNextHigh(it),tp=poiTop(it),sites=it.sites||[],top=sites.length?sites[0].p:1;
-  var cmp=sites.length?'<h3>全サイト比較（'+sites.length+'サイト）</h3><div class="poi-cmp">'+sites.map(function(x,i){return '<a class="poi-c'+(i===0?' top':'')+'" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span class="poi-cn"><b>'+(i+1)+'</b>'+esc(x.s)+'</span><span class="poi-cb"><i style="width:'+Math.max(4,Math.round(x.p/top*100))+'%"></i></span><span class="poi-cp">'+poiYen(x.p)+'</span></a>'}).join('')+'</div>':'';
+  var cmp=sites.length?'<h3>全サイト比較（'+sites.length+'サイト）</h3><div class="poi-cmp">'+sites.map(function(x,i){return '<a class="poi-c'+(i===0?' top':'')+'" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span class="poi-cn"><b>'+(i+1)+'</b><span class="poi-cs">'+esc(x.s)+'<small>'+esc(x.t||'')+'</small></span></span><span class="poi-cb"><i style="width:'+Math.max(4,Math.round(x.p/top*100))+'%"></i></span><span class="poi-cp">'+poiYen(x.p)+'</span></a>'}).join('')+'</div>':'';
   var h='<div class="poi-sh"><h2>'+esc(it.title)+'</h2><p class="poi-big">'+(tp.p?poiYen(tp.p):'いまは掲載なし')+(tp.p?' <small>'+esc(tp.s)+'</small>':'')+'</p>'+
     (tp.u?'<a class="btn" href="'+esc(tp.u)+'" target="_blank" rel="noopener">'+esc(tp.s)+'で見る</a>':'')+cmp+
     '<h3>還元額の推移（主要5サイトの最高・60日）</h3><div class="poi-kv"><span><small>最高</small><b>'+poiYen(it.max)+'</b></span><span><small>平均</small><b>'+poiYen(Math.round(it.avg))+'</b></span><span><small>最低</small><b>'+poiYen(it.min)+'</b></span></div>'+
