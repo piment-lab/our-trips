@@ -38,17 +38,24 @@ async function allSites(q, unit) {
   return Object.values(best).sort((a, b) => b.p - a.p);
 }
 // 案件ページから「獲得条件」を探して短く取り出す
-const CONDRE = /(ポイント獲得条件|獲得条件|成果条件|ポイント付与条件|付与条件|達成条件|承認条件|獲得の条件|成果対象|ポイント対象)/;
+const CONDK = ['【獲得条件】', 'ポイント獲得条件', '獲得条件', '成果条件', 'ポイント付与条件', '付与条件', '達成条件', '成果対象', '獲得の条件'];
 async function cond(u) {
   if (!u) return '';
   try {
     const html = await get(u, 1, { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36', 'Accept-Language': 'ja' });
-    const txt = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<br\s*\/?>|<\/(p|li|div|dd|dt|tr|h\d)>/gi, '\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&[a-z]+;|&#\d+;/g, '').replace(/[ \t　]+/g, ' ').replace(/\n\s*/g, '\n');
-    const m = CONDRE.exec(txt); if (!m) return '';
-    let c = txt.slice(m.index + m[0].length).replace(/^[\s:：】]+/, '');
-    c = c.split(/\n(?=.{0,12}(注意|対象外|予定|確定|期間|却下|ポイント数|獲得までの|よくある|関連|おすすめ))/)[0];
-    c = c.replace(/\n+/g, ' / ').trim().slice(0, 140);
-    return c.length > 6 ? c : '';
+    const txt = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<nav[\s\S]*?<\/nav>/gi, ' ').replace(/<br\s*\/?>|<\/(p|li|div|dd|dt|tr|h\d)>/gi, '\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&[a-z]+;|&#\d+;/g, '').replace(/[ \t　]+/g, ' ').replace(/\n\s*/g, '\n');
+    for (const k of CONDK) {
+      let from = 0, at;
+      while ((at = txt.indexOf(k, from)) >= 0) {
+        from = at + k.length;
+        let c = txt.slice(from).replace(/^[\s:：】」\]]+/, '');
+        c = c.split(/\n(?=[^\n]{0,14}(注意|対象外|予定|確定|却下|ポイント数|獲得までの|よくある|関連|おすすめ|広告の詳細|レビュー|口コミ|ポイント獲得の目安|お問い合わせ))/)[0];
+        c = c.replace(/\n+/g, ' / ').replace(/\s+/g, ' ').trim();
+        if (c.length < 8 || /^(\/ )?(広告の詳細|レビュー)/.test(c) || /^は/.test(c)) continue;
+        return c.slice(0, 150);
+      }
+    }
+    return '';
   } catch (e) { return ''; }
 }
 (async () => {
