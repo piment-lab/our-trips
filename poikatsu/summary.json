@@ -1,0 +1,635 @@
+{
+ "updatedAt": "2026-11-08T11:07:04.018Z",
+ "items": [
+  {
+   "slug": "rakuten-card",
+   "title": "楽天カード",
+   "maxPrice": 10000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "u-next",
+   "title": "U-NEXT",
+   "maxPrice": 2300,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "p-one-card",
+   "title": "P-oneカード",
+   "maxPrice": 5500,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "au-pay-card",
+   "title": "au PAY カード",
+   "maxPrice": 1800,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "epos-card",
+   "title": "エポスカード",
+   "maxPrice": 12000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "down",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "monex-sec",
+   "title": "マネックス証券",
+   "maxPrice": 0,
+   "maxSite": "",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "mercard",
+   "title": "メルカード",
+   "maxPrice": 0,
+   "maxSite": "",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "mizuho-bank",
+   "title": "みずほ銀行",
+   "maxPrice": 11000,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "mufj-bank",
+   "title": "三菱UFJ銀行",
+   "maxPrice": 4000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "recruit-card",
+   "title": "リクルートカード",
+   "maxPrice": 4300,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "smbc-card-nl",
+   "title": "三井住友カード（NL）",
+   "maxPrice": 12000,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "down",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "smbc-gold-nl",
+   "title": "三井住友カード ゴールド（NL）",
+   "maxPrice": 14500,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "mufj-card",
+   "title": "三菱UFJカード",
+   "maxPrice": 15000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "sbi-sec",
+   "title": "SBI証券",
+   "maxPrice": 15500,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "yahoo-shopping",
+   "title": "Yahoo!ショッピング",
+   "maxPrice": 1,
+   "maxSite": "モッピー",
+   "unitType": "percent",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "rakuten-ichiba",
+   "title": "楽天市場",
+   "maxPrice": 1,
+   "maxSite": "モッピー",
+   "unitType": "percent",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "rakuten-sec",
+   "title": "楽天証券",
+   "maxPrice": 20000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "bic-camera",
+   "title": "ビックカメラ",
+   "maxPrice": 2.8,
+   "maxSite": "モッピー",
+   "unitType": "percent",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "qoo10",
+   "title": "Qoo10",
+   "maxPrice": 1.9,
+   "maxSite": "げん玉",
+   "unitType": "percent",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "rakuten-bank",
+   "title": "楽天銀行",
+   "maxPrice": 1500,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "risona-bank",
+   "title": "りそな銀行",
+   "maxPrice": 0,
+   "maxSite": "",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 1,
+   "totalSites": 1
+  },
+  {
+   "slug": "binance-japan",
+   "title": "Binance Japan",
+   "maxPrice": 4500,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 2,
+   "totalSites": 2
+  },
+  {
+   "slug": "bitflyer",
+   "title": "bitFlyer",
+   "maxPrice": 5200,
+   "maxSite": "げん玉",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "coincheck",
+   "title": "Coincheck",
+   "maxPrice": 9000,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 1,
+   "totalSites": 1
+  },
+  {
+   "slug": "mufj-esmart-sec",
+   "title": "三菱UFJ eスマート証券",
+   "maxPrice": 16000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "paypay-card",
+   "title": "PayPayカード",
+   "maxPrice": 2500,
+   "maxSite": "げん玉",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "aeon-card",
+   "title": "イオンカード",
+   "maxPrice": 3000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "famima-card",
+   "title": "ファミマカード",
+   "maxPrice": 0,
+   "maxSite": "",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 3,
+   "totalSites": 3
+  },
+  {
+   "slug": "dcard",
+   "title": "dカード",
+   "maxPrice": 0,
+   "maxSite": "",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "dcard-gold",
+   "title": "dカード GOLD",
+   "maxPrice": 0,
+   "maxSite": "",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "tokyu-card",
+   "title": "東急カード",
+   "maxPrice": 5000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "jcb-card-w",
+   "title": "JCB CARD W",
+   "maxPrice": 10000,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "jcb-card-s",
+   "title": "JCBカード S",
+   "maxPrice": 5000,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "smbc-biz-owners",
+   "title": "三井住友カード ビジネスオーナーズ",
+   "maxPrice": 17000,
+   "maxSite": "ポイントタウン",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 3,
+   "totalSites": 3
+  },
+  {
+   "slug": "hotpepper-gourmet",
+   "title": "ホットペッパーグルメ",
+   "maxPrice": 120,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "jalan-net",
+   "title": "じゃらんnet",
+   "maxPrice": 2,
+   "maxSite": "ハピタス",
+   "unitType": "percent",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "rakuten-travel",
+   "title": "楽天トラベル",
+   "maxPrice": 1,
+   "maxSite": "モッピー",
+   "unitType": "percent",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "tipstar",
+   "title": "TIPSTAR",
+   "maxPrice": 2500,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "winticket",
+   "title": "WINTICKET",
+   "maxPrice": 2050,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 2,
+   "totalSites": 2
+  },
+  {
+   "slug": "piccoma",
+   "title": "ピッコマ",
+   "maxPrice": 134,
+   "maxSite": "ポイントタウン",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 2,
+   "totalSites": 2
+  },
+  {
+   "slug": "music-jp",
+   "title": "music.jp",
+   "maxPrice": 250,
+   "maxSite": "げん玉",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "dmm-tv",
+   "title": "DMM TV",
+   "maxPrice": 605,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "hulu",
+   "title": "Hulu",
+   "maxPrice": 1850,
+   "maxSite": "げん玉",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "disney-plus",
+   "title": "Disney+",
+   "maxPrice": 2600,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "komehyo",
+   "title": "KOMEHYO",
+   "maxPrice": 1800,
+   "maxSite": "ポイントタウン",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 3,
+   "totalSites": 3
+  },
+  {
+   "slug": "palsystem",
+   "title": "パルシステム",
+   "maxPrice": 2400,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "chocozap",
+   "title": "chocoZAP",
+   "maxPrice": 800,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "x-mobile",
+   "title": "エックスモバイル",
+   "maxPrice": 2000,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "libmo",
+   "title": "LIBMO",
+   "maxPrice": 2000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "rakuten-denki",
+   "title": "楽天でんき",
+   "maxPrice": 18000,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "ouchi-denki",
+   "title": "おうちでんき",
+   "maxPrice": 19000,
+   "maxSite": "げん玉",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "eneone-denki",
+   "title": "エネワンでんき",
+   "maxPrice": 22000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "light-fx",
+   "title": "LIGHT FX",
+   "maxPrice": 16000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "dmm-fx",
+   "title": "DMM FX",
+   "maxPrice": 4000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "minna-no-fx",
+   "title": "みんなのFX",
+   "maxPrice": 16000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "mattoco-plus",
+   "title": "mattoco+",
+   "maxPrice": 2000,
+   "maxSite": "ポイントインカム",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "ag-crowdfunding",
+   "title": "AGクラウドファンディング",
+   "maxPrice": 15000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "smbc-olive",
+   "title": "三井住友銀行 Olive",
+   "maxPrice": 4400,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 4,
+   "totalSites": 4
+  },
+  {
+   "slug": "sbi-shinsei-bank",
+   "title": "SBI新生銀行",
+   "maxPrice": 1500,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 5,
+   "totalSites": 5
+  },
+  {
+   "slug": "amazon-audible",
+   "title": "Amazon Audible",
+   "maxPrice": 1000,
+   "maxSite": "ハピタス",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 2,
+   "totalSites": 2
+  },
+  {
+   "slug": "sangokushi-shinsen",
+   "title": "三國志 真戦",
+   "maxPrice": 4000,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 3,
+   "totalSites": 3
+  },
+  {
+   "slug": "tokyo-debunker",
+   "title": "東京ディバンカー",
+   "maxPrice": 199,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 2,
+   "totalSites": 2
+  },
+  {
+   "slug": "evertale",
+   "title": "エバーテイル",
+   "maxPrice": 360,
+   "maxSite": "モッピー",
+   "unitType": "fixed",
+   "change": "same",
+   "siteCount": 3,
+   "totalSites": 3
+  }
+ ]
+}
