@@ -1,6 +1,8 @@
 name: poikatsu-update
 on:
   workflow_dispatch:
+  push:
+    paths: ['poikatsu/*.js', '.github/workflows/poikatsu.yml']
   schedule:
     - cron: '7 21 * * *'   # 毎朝 6:07（日本時間）
 permissions:
