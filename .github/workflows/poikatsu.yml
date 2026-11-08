@@ -12,11 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: node poikatsu/build.js
-      - if: github.event_name != 'push' || contains(join(github.event.commits.*.modified, ','), 'poikatsu/fetch.js')
-        run: node poikatsu/fetch.js
+      - run: |
+          if [ "${{ github.event_name }}" != "push" ] || git diff --name-only ${{ github.event.before }} HEAD | grep -qE 'poikatsu/fetch.js|poikatsu.yml'; then node poikatsu/fetch.js; else echo "データ取得はスキップ"; fi
       - run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
