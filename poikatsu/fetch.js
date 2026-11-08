@@ -17,7 +17,7 @@ const CAT = {
 const EXTRA = {
   bank: ['住信SBIネット銀行','PayPay銀行','auじぶん銀行','ソニー銀行','GMOあおぞらネット銀行','みんなの銀行','イオン銀行','東京スター銀行','UI銀行','スルガ銀行','北九州銀行','セブン銀行','ゆうちょ'],
   invest: ['松井証券','GMOクリック証券','SBIネオトレード証券','PayPay証券','moomoo証券','DMM株','岡三証券','大和コネクト証券','tsumiki証券','セゾンポケット','SBI VCトレード','GMOコイン','bitbank','BITPOINT','OKJ','Zaif','外為どっとコム','ヒロセ通商','外為オンライン','SBI FXトレード','松井証券 FX','JFX','セントラル短資FX','IG証券','OANDA','GMO外貨','楽天FX','セゾン投信'],
-  card: ['ライフカード','セゾンカード','セゾンパール','出光カード','JAカード','三井住友カード プラチナプリファード','アメリカン・エキスプレス','ANAカード','JALカード','ビックカメラSuicaカード','ルミネカード','Tカード プラス','ヤフーカード','ミライノカード','Oliveフレキシブルペイ','楽天ゴールドカード','楽天プレミアムカード','dカード PLATINUM','au PAY ゴールドカード','三井ショッピングパークカード','コスモ・ザ・カード','エポスゴールド','イオンゴールド','Visa LINE Payクレジットカード','ファミマTカード','楽天ANAマイレージクラブカード']
+  card: ['ライフカード','セゾンカード','セゾンパール','出光カード','JAカード','三井住友カード プラチナプリファード','アメリカン・エキスプレス・グリーン・カード','ANAカード','JALカード','ビックカメラSuicaカード','ルミネカード','Tカード プラス','ヤフーカード','ミライノカード','Oliveフレキシブルペイ','楽天ゴールドカード','楽天プレミアムカード','dカード PLATINUM','au PAY ゴールドカード','三井ショッピングパークカード','コスモ・ザ・カード','エポスゴールド','イオンゴールド','Visa LINE Payクレジットカード','ファミマTカード','楽天ANAマイレージクラブカード']
 };
 function pick(t, key) {
   const i = t.indexOf('"' + key + '":'); if (i < 0) return null;
@@ -32,12 +32,30 @@ function pick(t, key) {
 const esc = q => q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // 住宅ローン・カードローン・保険などは口座開設ではないので除外
 const NG = /ローン|融資|保険|不動産|借り換え|キャッシング/;
-async function allSites(q, unit) {
+// 同じ名前でも別の商品になる種類（例：みずほ銀行の「法人口座」、SBI証券の「FX」）
+const TAGS = [['法人', /法人/], ['FX', /FX|ＦＸ|外為/], ['CFD', /CFD/], ['iDeCo', /iDeCo|イデコ|ｉＤｅＣｏ/i], ['NISA', /NISA/], ['信用取引', /信用/], ['先物・オプション', /先物|オプション/],
+  ['ゴールド', /ゴールド|GOLD/i], ['プラチナ', /プラチナ|PLATINUM|プリファード/i], ['ビジネス', /ビジネス|BUSINESS/i], ['家族カード', /家族カード/], ['学生', /学生/], ['カード', /カード/], ['ポイントモール', /モール/]];
+function variant(title, q) {
+  const t = title.replace(q, '');
+  return TAGS.filter(([n, re]) => re.test(t) && !re.test(q)).map(x => x[0]).join('・');
+}
+async function allSites(q, unit, cat) {
   const re = new RegExp('(^|[^\\p{L}\\p{N}])' + esc(q), 'u');
   const r = await get('https://api.kochalog.com/api/search/?q=' + encodeURIComponent(q) + '&limit=0&unitType=' + (unit || 'fixed'));
-  const best = {};
-  (r.offers || []).forEach(o => { if (!(o.price > 0) || !re.test(o.title || '') || (NG.test(o.title) && !NG.test(q))) return; const k = o.siteName; if (!best[k] || o.price > best[k].p) best[k] = { s: k, p: Math.round(o.price), u: o.url || o.topUrl || '', t: o.title }; });
-  return Object.values(best).sort((a, b) => b.p - a.p);
+  const groups = {};
+  (r.offers || []).forEach(o => {
+    const t = o.title || '';
+    if (!(o.price > 0) || !re.test(t) || (NG.test(t) && !NG.test(q))) return;
+    let v = variant(t, q);
+    if (cat === 'card') v = v.split('・').filter(x => x !== 'カード').join('・');
+    const g = groups[v] = groups[v] || {}, k = o.siteName;
+    if (!g[k] || o.price > g[k].p) g[k] = { s: k, p: Math.round(o.price), u: o.url || o.topUrl || '', t };
+  });
+  const list = Object.keys(groups).map(v => ({ v, sites: Object.values(groups[v]).sort((a, b) => b.p - a.p) }));
+  // ふつうの（個人向け・基本の）商品を主役にする。なければ掲載サイトが一番多い種類
+  list.sort((a, b) => (a.v === '' ? -1 : b.v === '' ? 1 : b.sites.length - a.sites.length));
+  const main = list[0] || { v: '', sites: [] };
+  return { v: main.v, sites: main.sites, vars: list.slice(1).map(x => ({ v: x.v, n: x.sites.length, top: x.sites[0] })) };
 }
 // 案件ページから「獲得条件」を探して短く取り出す
 const CONDK = ['【獲得条件】', 'ポイント獲得条件', '獲得条件', '成果条件', 'ポイント付与条件', '付与条件', '達成条件', '成果対象', '獲得の条件'];
@@ -80,14 +98,14 @@ async function cond(u) {
       it.hist = Object.keys(best).sort().slice(-150).map(d => [d, best[d][0], best[d][1]]);
     } catch (e) { it.err = e.message; }
     await wait(1000);
-    try { it.sites = await allSites(s.title, s.unitType); } catch (e) { it.sites = []; }
+    try { const a = await allSites(s.title, s.unitType, cat); it.sites = a.sites; it.vars = a.vars; it.variant = a.v; } catch (e) { it.sites = []; }
     items.push(it); seen[s.title] = 1; await wait(1000);
   }
   for (const cat of Object.keys(EXTRA)) for (const q of EXTRA[cat]) {
     if (seen[q]) continue;
     const slug = 'x-' + q.replace(/\s+/g, '-');
     const it = { slug, cat, title: q, extra: true, change: 'same', page: BASE + '/search/?q=' + encodeURIComponent(q), hist: [] };
-    try { it.sites = await allSites(q, 'fixed'); } catch (e) { it.sites = []; }
+    try { const a = await allSites(q, 'fixed', cat); it.sites = a.sites; it.vars = a.vars; it.variant = a.v; } catch (e) { it.sites = []; }
     const top = it.sites[0]; it.now = top ? top.p : 0; it.site = top ? top.s : ''; it.url = top ? top.u : '';
     items.push(it); await wait(1000);
   }
