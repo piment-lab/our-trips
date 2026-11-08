@@ -31,13 +31,14 @@ function pick(t, key) {
 }
 const esc = q => q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // 住宅ローン・カードローン・保険などは口座開設ではないので除外
-const NG = /ローン|融資|保険|不動産|借り換え|キャッシング/;
+const NG = /ローン|住宅ロ|SBIマネープラザ|融資|保険|不動産|借り換え|キャッシング/;
 // 同じ名前でも別の商品になる種類（例：みずほ銀行の「法人口座」、SBI証券の「FX」）
-const TAGS = [['法人', /法人/], ['FX', /FX|ＦＸ|外為/], ['CFD', /CFD/], ['iDeCo', /iDeCo|イデコ|ｉＤｅＣｏ/i], ['NISA', /NISA/], ['信用取引', /信用/], ['先物・オプション', /先物|オプション/],
-  ['ゴールド', /ゴールド|GOLD/i], ['プラチナ', /プラチナ|PLATINUM|プリファード/i], ['ビジネス', /ビジネス|BUSINESS/i], ['家族カード', /家族カード/], ['学生', /学生/], ['カード', /カード/], ['ポイントモール', /モール/]];
+const TAGS = [['法人・個人事業主', /法人|個人事業主/], ['FX', /FX|ＦＸ|外為/], ['CFD', /CFD/], ['iDeCo', /iDeCo|イデコ|ｉＤｅＣｏ/i], ['NISA', /NISA/], ['信用取引', /信用/], ['先物・オプション', /先物|オプション/],
+  ['ゴールド', /ゴールド|GOLD/i], ['プラチナ', /プラチナ|PLAT|プリファード/i], ['ビジネス', /ビジネス|BUSINESS/i], ['家族カード', /家族カード/], ['学生', /学生/], ['カード', /カード|Mastercard|デビット/i], ['ポイントモール', /モール/]];
+const FXCO = /ヒロセ|外為|JFX|OANDA|IG証券|セントラル短資|GMO外貨|LIGHT FX|みんなのFX|DMM FX/;
 function variant(title, q) {
   const t = title.replace(q, '');
-  return TAGS.filter(([n, re]) => re.test(t) && !re.test(q)).map(x => x[0]).join('・');
+  return TAGS.filter(([n, re]) => re.test(t) && !re.test(q) && !(n === 'FX' && FXCO.test(q))).map(x => x[0]).join('・');
 }
 async function allSites(q, unit, cat) {
   const re = new RegExp('(^|[^\\p{L}\\p{N}])' + esc(q), 'u');
