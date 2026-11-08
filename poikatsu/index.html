@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-08-poi4">
+<meta name="durip-build" content="2026-11-08-poi5">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -2509,11 +2509,12 @@ function poiShown(){if(!PD){poiLoad();return[]}var w=poiWatch();return PD.items.
 function poiHighOn(it,d){var t=todayS();if(d<t)return !!it.hiDays[d];if(d===t)return it.hot||it.hiDow.indexOf(D(d).getDay())>=0;return it.hiDow.indexOf(D(d).getDay())>=0&&d<=addDays(t,42)}
 function poiSpark(it){var h=(it.hist||[]).slice(-60);if(h.length<2)return '';var v=h.map(function(x){return x[1]}),mx=Math.max.apply(null,v),mn=Math.min.apply(null,v),r=(mx-mn)||1;
   return '<svg class="poi-sp" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+h.map(function(x,i){return (i/(h.length-1)*100).toFixed(1)+','+(26-(x[1]-mn)/r*24).toFixed(1)}).join(' ')+'"/></svg>'}
+function poiName(it){return it.title+(it.variant?'（'+it.variant+'）':'')}
 function poiMin(it){var l=(it.sites||[]).filter(function(x){return x.p>0});return l.length?l[l.length-1]:null}
 function poiTop(it){var t=it.sites&&it.sites[0];return t&&t.p>=it.now?{p:t.p,s:t.s,u:t.u}:{p:it.now,s:it.site,u:it.url}}
 function poiRow(it){var w=poiWatch(),on=!!(w&&w.indexOf(it.slug)>=0),tp=poiTop(it),n=(it.sites||[]).length,ch=it.change==='up'?'<span class="poi-up">▲上昇</span>':it.change==='down'?'<span class="poi-dn">▼下落</span>':'';
   return '<div class="poi-r"><button type="button" class="poi-st'+(on?' on':'')+'" data-pst="'+esc(it.slug)+'" aria-label="'+esc(it.title)+'を'+(on?'カレンダーから外す':'カレンダーに表示する')+'">'+(on?'★':'☆')+'</button>'+
-    '<button type="button" class="poi-b" data-poi="'+esc(it.slug)+'"><span class="poi-t"><b>'+esc(it.title)+'</b><small>'+(tp.p?esc(tp.s)+' が最高'+(n>1?' ・ 最低 '+poiYen(poiMin(it).p)+'（'+n+'サイト）':''):'いまは掲載なし')+'</small><span class="poi-tags">'+(it.hot?'<span class="poi-hot">今が高い</span>':'')+(poiDowLabel(it)?'<span class="poi-tag">'+poiDowLabel(it)+'</span>':'')+ch+'</span></span>'+
+    '<button type="button" class="poi-b" data-poi="'+esc(it.slug)+'"><span class="poi-t"><b>'+esc(poiName(it))+'</b><small>'+(tp.p?esc(tp.s)+' が最高'+(n>1?' ・ 最低 '+poiYen(poiMin(it).p)+'（'+n+'サイト）':''):'いまは掲載なし')+'</small><span class="poi-tags">'+(it.hot?'<span class="poi-hot">今が高い</span>':'')+(poiDowLabel(it)?'<span class="poi-tag">'+poiDowLabel(it)+'</span>':'')+ch+'</span></span>'+
     '<span class="poi-v"><b>'+(tp.p?poiYen(tp.p):'—')+'</b>'+poiSpark(it)+'</span></button></div>'}
 function vPoi(){
   headApp('ポイ活');poiLoad();
@@ -2543,8 +2544,9 @@ function poiNextHigh(it){var t=todayS();for(var k=0;k<28;k++){var d=addDays(t,k)
 function poiSheet(s){var it=poiItem(s);if(!it)return;
   var mx=Math.max.apply(null,it.dow.concat([1])),nx=poiNextHigh(it),tp=poiTop(it),sites=it.sites||[],top=sites.length?sites[0].p:1;
   var cmp=sites.length?'<h3>全サイト比較（'+sites.length+'サイト）</h3><div class="poi-cmp">'+sites.map(function(x,i){return '<a class="poi-c'+(i===0?' top':'')+'" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span class="poi-cn"><b>'+(i+1)+'</b><span class="poi-cs">'+esc(x.s)+'<small>'+esc(x.t||'')+'</small>'+(x.c?'<small class="poi-cc">条件：'+esc(x.c)+'</small>':'')+'</span></span><span class="poi-cb"><i style="width:'+Math.max(4,Math.round(x.p/top*100))+'%"></i></span><span class="poi-cp">'+poiYen(x.p)+'</span></a>'}).join('')+'</div>':'';
-  var h='<div class="poi-sh"><h2>'+esc(it.title)+'</h2><p class="poi-big">'+(tp.p?poiYen(tp.p):'いまは掲載なし')+(tp.p?' <small>'+esc(tp.s)+'</small>':'')+'</p>'+
-    (sites.length>1?'<div class="poi-kv"><span><small>いまの最高</small><b>'+poiYen(sites[0].p)+'</b><small>'+esc(sites[0].s)+'</small></span><span><small>いまの最低</small><b>'+poiYen(poiMin(it).p)+'</b><small>'+esc(poiMin(it).s)+'</small></span><span><small>差額</small><b>'+poiYen(sites[0].p-poiMin(it).p)+'</b><small>'+sites.length+'サイト</small></span></div>':'')+(sites[0]&&sites[0].c?'<div class="poi-cond"><b>獲得条件（'+esc(sites[0].s)+'）</b><span>'+esc(sites[0].c)+'</span></div>':'<p class="note" style="margin:0">獲得条件は、各サイトのページで確認してください。</p>')+(tp.u?'<a class="btn" href="'+esc(tp.u)+'" target="_blank" rel="noopener">'+esc(tp.s)+'で見る</a>':'')+cmp+
+  var vars=(it.vars||[]).filter(function(x){return x.top});
+  var h='<div class="poi-sh"><h2>'+esc(poiName(it))+'</h2><p class="poi-big">'+(tp.p?poiYen(tp.p):'いまは掲載なし')+(tp.p?' <small>'+esc(tp.s)+'</small>':'')+'</p>'+
+    (sites.length>1?'<div class="poi-kv"><span><small>いまの最高</small><b>'+poiYen(sites[0].p)+'</b><small>'+esc(sites[0].s)+'</small></span><span><small>いまの最低</small><b>'+poiYen(poiMin(it).p)+'</b><small>'+esc(poiMin(it).s)+'</small></span><span><small>差額</small><b>'+poiYen(sites[0].p-poiMin(it).p)+'</b><small>'+sites.length+'サイト</small></span></div>':'')+(sites[0]&&sites[0].c?'<div class="poi-cond"><b>獲得条件（'+esc(sites[0].s)+'）</b><span>'+esc(sites[0].c)+'</span></div>':'<p class="note" style="margin:0">獲得条件は、各サイトのページで確認してください。</p>')+(tp.u?'<a class="btn" href="'+esc(tp.u)+'" target="_blank" rel="noopener">'+esc(tp.s)+'で見る</a>':'')+cmp+(vars.length?'<h3>同じ名前の別の種類（上の比較には含めていません）</h3><div class="poi-cmp">'+vars.map(function(x){return '<a class="poi-c" href="'+esc(x.top.u)+'" target="_blank" rel="noopener"><span class="poi-cn"><span class="poi-cs">'+esc(x.v)+'<small>'+esc(x.top.t)+'</small></span></span><span class="poi-cb"></span><span class="poi-cp">'+poiYen(x.top.p)+'</span></a>'}).join('')+'</div>':'')+
     (it.hist.length>1?'<h3>還元額の推移（'+(it.extra?'全サイトの最高':'主要5サイトの最高')+'・60日）</h3><div class="poi-kv"><span><small>期間中の最高</small><b>'+poiYen(it.max)+'</b></span><span><small>平均</small><b>'+poiYen(Math.round(it.avg))+'</b></span><span><small>期間中の最低</small><b>'+poiYen(it.min)+'</b></span></div>':'<p class="note">この案件の推移は、今日から記録を始めました。数日たつと、高い日の傾向が出ます。</p>')+
     (poiSpark(it)?'<div class="poi-big-sp">'+poiSpark(it)+'</div>':'')+
     (it.hist.length<14?'':'<h3>曜日ごとの平均（最近8週間）</h3><div class="poi-dow">'+it.dow.map(function(a,i){return '<span class="'+(it.hiDow.indexOf(i)>=0?'hi':'')+'"><i style="height:'+Math.max(4,Math.round(a/mx*56))+'px"></i><small>'+WD[i]+'</small></span>'}).join('')+'</div>')+
