@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="durip-build" content="2026-11-08-poi3">
+<meta name="durip-build" content="2026-11-08-poi4">
 <script>
 /* load the newest version: if the server copy is newer than this one, reload */
 (function(){
@@ -425,6 +425,8 @@ textarea.tt-in{resize:vertical;line-height:1.6;padding-top:0}
 .poi-cn b{flex:none;width:20px;height:20px;border-radius:50%;background:#eef1f5;color:var(--mute);font-size:11px;display:flex;align-items:center;justify-content:center}
 .poi-c.top .poi-cn b{background:#e8796a;color:#fff}
 .poi-cs{min-width:0;display:flex;flex-direction:column;overflow:hidden}.poi-cs small{font-size:10px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poi-cond{background:#fff8ec;border:1px solid #f3dfb8;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.6}.poi-cond b{font-size:12px;color:#8a6a2f}
+.poi-cc{white-space:normal!important;color:#8a6a2f!important;line-height:1.5}
 .poi-cb{height:8px;background:#eef1f5;border-radius:4px;overflow:hidden}
 .poi-cb i{display:block;height:100%;background:#c9d6e8;border-radius:4px}
 .poi-c.top .poi-cb i{background:#e8796a}
@@ -817,7 +819,7 @@ body.mapfull .tabs{display:none}
   <a href="#calendar" data-v="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2"/></svg>カレンダー</a>
 </nav>
 <div id="sheetRoot"></div>
-<script>if(window.POI){(function(){var sp=document.getElementById('splash');if(sp){sp.setAttribute('aria-label','ポイ活を起動しています');sp.innerHTML='<svg class="spl-ic" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#ffffff" fill-opacity=".08"/><circle cx="256" cy="256" r="150" fill="none" stroke="#fff" stroke-width="28"/><path d="M216 346V166h62a52 52 0 0 1 0 104h-62" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:22px;font-weight:700;letter-spacing:.06em">ポイ活</span>'}
+<script>if(window.POI){(function(){var sp=document.getElementById('splash');if(sp){sp.setAttribute('aria-label','ポイ活を起動しています');sp.style.background='linear-gradient(180deg,#f69a5b,#e05a3a)';sp.innerHTML='<svg class="spl-ic" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#ffffff" fill-opacity=".08"/><circle cx="256" cy="256" r="150" fill="none" stroke="#fff" stroke-width="28"/><path d="M216 346V166h62a52 52 0 0 1 0 104h-62" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:22px;font-weight:700;letter-spacing:.06em">ポイ活</span>'}
 var nv=document.querySelector('nav.tabs');if(nv){nv.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';nv.querySelectorAll('a[data-v="itinerary"],a[data-v="map"]').forEach(function(a){a.remove()});var hm=nv.querySelector('a[data-v="home"]');if(hm)hm.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 17V7h3a3 3 0 0 1 0 6h-3"/></svg>ポイ活'}})()}</script>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -2507,10 +2509,11 @@ function poiShown(){if(!PD){poiLoad();return[]}var w=poiWatch();return PD.items.
 function poiHighOn(it,d){var t=todayS();if(d<t)return !!it.hiDays[d];if(d===t)return it.hot||it.hiDow.indexOf(D(d).getDay())>=0;return it.hiDow.indexOf(D(d).getDay())>=0&&d<=addDays(t,42)}
 function poiSpark(it){var h=(it.hist||[]).slice(-60);if(h.length<2)return '';var v=h.map(function(x){return x[1]}),mx=Math.max.apply(null,v),mn=Math.min.apply(null,v),r=(mx-mn)||1;
   return '<svg class="poi-sp" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" points="'+h.map(function(x,i){return (i/(h.length-1)*100).toFixed(1)+','+(26-(x[1]-mn)/r*24).toFixed(1)}).join(' ')+'"/></svg>'}
+function poiMin(it){var l=(it.sites||[]).filter(function(x){return x.p>0});return l.length?l[l.length-1]:null}
 function poiTop(it){var t=it.sites&&it.sites[0];return t&&t.p>=it.now?{p:t.p,s:t.s,u:t.u}:{p:it.now,s:it.site,u:it.url}}
 function poiRow(it){var w=poiWatch(),on=!!(w&&w.indexOf(it.slug)>=0),tp=poiTop(it),n=(it.sites||[]).length,ch=it.change==='up'?'<span class="poi-up">▲上昇</span>':it.change==='down'?'<span class="poi-dn">▼下落</span>':'';
   return '<div class="poi-r"><button type="button" class="poi-st'+(on?' on':'')+'" data-pst="'+esc(it.slug)+'" aria-label="'+esc(it.title)+'を'+(on?'カレンダーから外す':'カレンダーに表示する')+'">'+(on?'★':'☆')+'</button>'+
-    '<button type="button" class="poi-b" data-poi="'+esc(it.slug)+'"><span class="poi-t"><b>'+esc(it.title)+'</b><small>'+(tp.p?esc(tp.s)+' が最高'+(n>1?'（'+n+'サイト比較）':''):'いまは掲載なし')+'</small><span class="poi-tags">'+(it.hot?'<span class="poi-hot">今が高い</span>':'')+(poiDowLabel(it)?'<span class="poi-tag">'+poiDowLabel(it)+'</span>':'')+ch+'</span></span>'+
+    '<button type="button" class="poi-b" data-poi="'+esc(it.slug)+'"><span class="poi-t"><b>'+esc(it.title)+'</b><small>'+(tp.p?esc(tp.s)+' が最高'+(n>1?' ・ 最低 '+poiYen(poiMin(it).p)+'（'+n+'サイト）':''):'いまは掲載なし')+'</small><span class="poi-tags">'+(it.hot?'<span class="poi-hot">今が高い</span>':'')+(poiDowLabel(it)?'<span class="poi-tag">'+poiDowLabel(it)+'</span>':'')+ch+'</span></span>'+
     '<span class="poi-v"><b>'+(tp.p?poiYen(tp.p):'—')+'</b>'+poiSpark(it)+'</span></button></div>'}
 function vPoi(){
   headApp('ポイ活');poiLoad();
@@ -2539,12 +2542,12 @@ function poiItem(s){return PD?PD.items.filter(function(x){return x.slug===s})[0]
 function poiNextHigh(it){var t=todayS();for(var k=0;k<28;k++){var d=addDays(t,k);if(poiHighOn(it,d))return d}return ''}
 function poiSheet(s){var it=poiItem(s);if(!it)return;
   var mx=Math.max.apply(null,it.dow.concat([1])),nx=poiNextHigh(it),tp=poiTop(it),sites=it.sites||[],top=sites.length?sites[0].p:1;
-  var cmp=sites.length?'<h3>全サイト比較（'+sites.length+'サイト）</h3><div class="poi-cmp">'+sites.map(function(x,i){return '<a class="poi-c'+(i===0?' top':'')+'" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span class="poi-cn"><b>'+(i+1)+'</b><span class="poi-cs">'+esc(x.s)+'<small>'+esc(x.t||'')+'</small></span></span><span class="poi-cb"><i style="width:'+Math.max(4,Math.round(x.p/top*100))+'%"></i></span><span class="poi-cp">'+poiYen(x.p)+'</span></a>'}).join('')+'</div>':'';
+  var cmp=sites.length?'<h3>全サイト比較（'+sites.length+'サイト）</h3><div class="poi-cmp">'+sites.map(function(x,i){return '<a class="poi-c'+(i===0?' top':'')+'" href="'+esc(x.u)+'" target="_blank" rel="noopener"><span class="poi-cn"><b>'+(i+1)+'</b><span class="poi-cs">'+esc(x.s)+'<small>'+esc(x.t||'')+'</small>'+(x.c?'<small class="poi-cc">条件：'+esc(x.c)+'</small>':'')+'</span></span><span class="poi-cb"><i style="width:'+Math.max(4,Math.round(x.p/top*100))+'%"></i></span><span class="poi-cp">'+poiYen(x.p)+'</span></a>'}).join('')+'</div>':'';
   var h='<div class="poi-sh"><h2>'+esc(it.title)+'</h2><p class="poi-big">'+(tp.p?poiYen(tp.p):'いまは掲載なし')+(tp.p?' <small>'+esc(tp.s)+'</small>':'')+'</p>'+
-    (tp.u?'<a class="btn" href="'+esc(tp.u)+'" target="_blank" rel="noopener">'+esc(tp.s)+'で見る</a>':'')+cmp+
-    '<h3>還元額の推移（主要5サイトの最高・60日）</h3><div class="poi-kv"><span><small>最高</small><b>'+poiYen(it.max)+'</b></span><span><small>平均</small><b>'+poiYen(Math.round(it.avg))+'</b></span><span><small>最低</small><b>'+poiYen(it.min)+'</b></span></div>'+
+    (sites.length>1?'<div class="poi-kv"><span><small>いまの最高</small><b>'+poiYen(sites[0].p)+'</b><small>'+esc(sites[0].s)+'</small></span><span><small>いまの最低</small><b>'+poiYen(poiMin(it).p)+'</b><small>'+esc(poiMin(it).s)+'</small></span><span><small>差額</small><b>'+poiYen(sites[0].p-poiMin(it).p)+'</b><small>'+sites.length+'サイト</small></span></div>':'')+(sites[0]&&sites[0].c?'<div class="poi-cond"><b>獲得条件（'+esc(sites[0].s)+'）</b><span>'+esc(sites[0].c)+'</span></div>':'<p class="note" style="margin:0">獲得条件は、各サイトのページで確認してください。</p>')+(tp.u?'<a class="btn" href="'+esc(tp.u)+'" target="_blank" rel="noopener">'+esc(tp.s)+'で見る</a>':'')+cmp+
+    (it.hist.length>1?'<h3>還元額の推移（'+(it.extra?'全サイトの最高':'主要5サイトの最高')+'・60日）</h3><div class="poi-kv"><span><small>期間中の最高</small><b>'+poiYen(it.max)+'</b></span><span><small>平均</small><b>'+poiYen(Math.round(it.avg))+'</b></span><span><small>期間中の最低</small><b>'+poiYen(it.min)+'</b></span></div>':'<p class="note">この案件の推移は、今日から記録を始めました。数日たつと、高い日の傾向が出ます。</p>')+
     (poiSpark(it)?'<div class="poi-big-sp">'+poiSpark(it)+'</div>':'')+
-    '<h3>曜日ごとの平均（最近8週間）</h3><div class="poi-dow">'+it.dow.map(function(a,i){return '<span class="'+(it.hiDow.indexOf(i)>=0?'hi':'')+'"><i style="height:'+Math.max(4,Math.round(a/mx*56))+'px"></i><small>'+WD[i]+'</small></span>'}).join('')+'</div>'+
+    (it.hist.length<14?'':'<h3>曜日ごとの平均（最近8週間）</h3><div class="poi-dow">'+it.dow.map(function(a,i){return '<span class="'+(it.hiDow.indexOf(i)>=0?'hi':'')+'"><i style="height:'+Math.max(4,Math.round(a/mx*56))+'px"></i><small>'+WD[i]+'</small></span>'}).join('')+'</div>')+
     '<p class="note">'+(it.hot?'<b>今日はいつもより高い日です。</b> ':'')+(poiDowLabel(it)?poiDowLabel(it)+'傾向があります。':'曜日による差はあまりありません。')+(nx&&!it.hot?' 次の高い日の予想：'+jp(nx):'')+'</p>'+
     '<div class="poi-acts"><a class="btn line" href="'+esc(it.page)+'" target="_blank" rel="noopener">比較サイトで推移を見る</a>'+
     (S.canWrite?'<button type="button" class="btn line" id="poiTd">やることに追加</button>':'')+'</div></div>';
