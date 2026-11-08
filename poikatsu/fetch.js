@@ -30,11 +30,13 @@ function pick(t, key) {
   return null;
 }
 const esc = q => q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// 住宅ローン・カードローン・保険などは口座開設ではないので除外
+const NG = /ローン|融資|保険|不動産|借り換え|キャッシング/;
 async function allSites(q, unit) {
   const re = new RegExp('(^|[^\\p{L}\\p{N}])' + esc(q), 'u');
   const r = await get('https://api.kochalog.com/api/search/?q=' + encodeURIComponent(q) + '&limit=0&unitType=' + (unit || 'fixed'));
   const best = {};
-  (r.offers || []).forEach(o => { if (!(o.price > 0) || !re.test(o.title || '')) return; const k = o.siteName; if (!best[k] || o.price > best[k].p) best[k] = { s: k, p: Math.round(o.price), u: o.url || o.topUrl || '', t: o.title }; });
+  (r.offers || []).forEach(o => { if (!(o.price > 0) || !re.test(o.title || '') || (NG.test(o.title) && !NG.test(q))) return; const k = o.siteName; if (!best[k] || o.price > best[k].p) best[k] = { s: k, p: Math.round(o.price), u: o.url || o.topUrl || '', t: o.title }; });
   return Object.values(best).sort((a, b) => b.p - a.p);
 }
 // 案件ページから「獲得条件」を探して短く取り出す
